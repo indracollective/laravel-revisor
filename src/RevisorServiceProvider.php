@@ -2,9 +2,9 @@
 
 namespace Indra\Revisor;
 
+use Indra\Revisor\Commands\RevisorCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Indra\Revisor\Commands\RevisorCommand;
 
 class RevisorServiceProvider extends PackageServiceProvider
 {
