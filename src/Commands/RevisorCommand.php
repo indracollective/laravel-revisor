@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Indra\Revisor\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class RevisorCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-revisor';
 
     public $description = 'My command';
 
