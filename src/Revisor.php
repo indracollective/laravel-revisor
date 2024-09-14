@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Indra\Revisor;
 
 use Illuminate\Database\Schema\Blueprint;
@@ -9,50 +11,80 @@ class Revisor
 {
     /**
      * Creates 3 tables for the given table name:
-     * - {table}_versions, which holds all the versions of the records
-     * - {table}_live, which holds the published version of the records
-     * - {table}, which holds the base data / drafts of the records
+     * - {baseTableName}_versions, which holds all the versions of the records
+     * - {baseTableName}_live, which holds the published version of the records
+     * - {baseTableName}, which holds the base data / drafts of the records
      **/
-    public function schemaCreate(string $table, \Closure $callback): void
+    public function createTableSchemas(string $baseTableName, \Closure $callback): void
     {
-        $baseTableName = $table;
-
         // create the versions table
-        Schema::create(static::getVersionsTableNameFor($table), function (Blueprint $table) use ($callback, $baseTableName) {
+        Schema::create(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback, $baseTableName) {
             $callback($table);
             $table->nullableMorphs('publisher');
             $table->timestamp('published_at')->nullable();
-            $table->boolean('is_current')->default(false);
-            $table->boolean('is_published')->default(false);
+            $table->boolean('is_current')->default(0);
+            $table->boolean('is_published')->default(0);
             $table->foreignId('record_id')->constrained($baseTableName)->cascadeOnDelete();
         });
 
         // create the live table
-        Schema::create(static::getPublishedTableNameFor($table), function (Blueprint $table) use ($callback) {
+        Schema::create(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
             $callback($table);
             $table->nullableMorphs('publisher');
             $table->timestamp('published_at')->nullable();
-            $table->boolean('is_current')->default(false);
-            $table->boolean('is_published')->default(false);
+            $table->boolean('is_current')->default(0);
+            $table->boolean('is_published')->default(0);
         });
 
         // create the base table
-        Schema::create($table, function (Blueprint $table) use ($callback) {
+        Schema::create($baseTableName, function (Blueprint $table) use ($callback) {
             $callback($table);
             $table->nullableMorphs('publisher');
             $table->timestamp('published_at')->nullable();
-            $table->boolean('is_current')->default(false);
-            $table->boolean('is_published')->default(false);
+            $table->boolean('is_current')->default(0);
+            $table->boolean('is_published')->default(0);
         });
     }
 
-    public static function getVersionsTableNameFor(string $table): string
+    /**
+     * Amends 3 tables for the given baseTableName:
+     * - {baseTableName}_versions, which holds all the versions of the records
+     * - {baseTableName}_live, which holds the published version of the records
+     * - {baseTableName}, which holds the base data / drafts of the records
+     **/
+    public function amendTableSchemas(string $baseTableName, \Closure $callback): void
     {
-        return str($table)->singular().'_versions';
+        // amend the versions table
+        Schema::table(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback) {
+            $callback($table);
+        });
+
+        // amend the live table
+        Schema::table(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
+            $callback($table);
+        });
+
+        // amend the base table
+        Schema::table($baseTableName, function (Blueprint $table) use ($callback) {
+            $callback($table);
+        });
     }
 
-    public static function getPublishedTableNameFor(string $table): string
+    /**
+     * Get the name of the table that holds the versions
+     * of the records for the given baseTableName
+     **/
+    public static function getVersionTableFor(string $baseTableName): string
     {
-        return $table.'_live';
+        return str($baseTableName)->singular().'_versions';
+    }
+
+    /**
+     * Get the name of the table that holds the published verions
+     * of the records for the given baseTableName
+     **/
+    public static function getPublishedTableFor(string $baseTableName): string
+    {
+        return $baseTableName.'_live';
     }
 }

@@ -1,31 +1,48 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Schema;
 use Indra\Revisor\Facades\Revisor;
 
-it('creates revisor schemas', function () {
-    Revisor::schemaCreate('foo', function (Blueprint $table): void {
-        $table->id();
-        $table->string('title');
-    });
+it('creates and amends revisor schemas', function () {
+    // table creation and amendments in TestCase.php
 
-    expect(Schema::hasTable('foo'))->toBeTrue();
-    expect(Schema::hasTable(Revisor::getVersionsTableNameFor('foo')))->toBeTrue();
-    expect(Schema::hasTable(Revisor::getPublishedTableNameFor('foo')))->toBeTrue();
+    // assert that expected tables exist
+    expect(Schema::hasTable('pages'))->toBeTrue();
+    expect(Schema::hasTable(Revisor::getVersionTableFor('pages')))->toBeTrue();
+    expect(Schema::hasTable(Revisor::getPublishedTableFor('pages')))->toBeTrue();
 
+    // define expected columns
     $expectedColumns = [
         'id',
         'title',
-        'is_current',
         'publisher_type',
         'publisher_id',
-        'is_published',
         'published_at',
-        'published_by',
+        'is_current',
+        'is_published',
+        'content',
+        'created_at',
+        'updated_at',
     ];
-    //expect([])->toMatchArray(Schema::getColumnListing('foo')); ?
-    expect(Schema::hasColumns('foo', $expectedColumns))->toBeTrue();
-    expect(Schema::hasColumns(Revisor::getVersionsTableNameFor('foo'), $expectedColumns + ['record_id']))->toBeTrue();
-    expect(Schema::hasColumns(Revisor::getPublishedTableNameFor('foo'), $expectedColumns))->toBeTrue();
+
+    sort($expectedColumns);
+
+    // assert that expected columns exist for base table
+    $actualColumns = Schema::getColumnListing('pages');
+    sort($actualColumns);
+    expect($expectedColumns)->toMatchArray($actualColumns);
+
+    // assert that expected columns exist for versions table
+    $actualColumns = Schema::getColumnListing(Revisor::getVersionTableFor('pages'));
+    sort($actualColumns);
+    $expectedVersionsColumns = array_merge($expectedColumns, ['record_id']);
+    sort($expectedVersionsColumns);
+    expect($expectedVersionsColumns)->toMatchArray($actualColumns);
+
+    // assert that expected columns exist for published table
+    $actualColumns = Schema::getColumnListing(Revisor::getPublishedTableFor('pages'));
+    sort($actualColumns);
+    expect($expectedColumns)->toMatchArray($actualColumns);
 });

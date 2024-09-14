@@ -3,6 +3,8 @@
 namespace Indra\Revisor\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Schema\Blueprint;
+use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\RevisorServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -28,9 +30,21 @@ class TestCase extends Orchestra
     {
         config()->set('database.default', 'testing');
 
-        /*
-        $migration = include __DIR__.'/../database/migrations/create_laravel-revisor_table.php.stub';
-        $migration->up();
-        */
+        $this->setUpDatabase();
+    }
+
+    protected function setUpDatabase()
+    {
+        // create tables
+        Revisor::createTableSchemas('pages', function (Blueprint $table): void {
+            $table->id();
+            $table->string('title');
+            $table->timestamps();
+        });
+
+        // amend tables
+        Revisor::amendTableSchemas('pages', function (Blueprint $table): void {
+            $table->string('content')->nullable();
+        });
     }
 }
