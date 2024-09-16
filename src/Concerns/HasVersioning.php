@@ -6,15 +6,14 @@ namespace Indra\Revisor\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Indra\Revisor\Contracts\RevisorContract;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasVersioning
 {
-    protected bool | null $recordNewVersionOnCreated = null; // default to config value
+    protected ?bool $recordNewVersionOnCreated = null; // default to config value
 
-    protected bool | null $recordNewVersionOnUpdated = null; // default to config value
+    protected ?bool $recordNewVersionOnUpdated = null; // default to config value
 
     protected bool $withVersionTable = false;
 
@@ -38,21 +37,21 @@ trait HasVersioning
             $model->is_current = true;
         });
 
-//        static::deleted(function (Model $model): void {
-//            $model->revisions()->delete();
-//        });
-//
-//        if (method_exists(static::class, 'restored')) {
-//            static::restored(function (Model $model): void {
-//                $model->revisions()->restore();
-//            });
-//        }
-//
-//        if (method_exists(static::class, 'forceDeleted')) {
-//            static::forceDeleted(function (Model $model): void {
-//                $model->revisions()->forceDelete();
-//            });
-//        }
+        //        static::deleted(function (Model $model): void {
+        //            $model->revisions()->delete();
+        //        });
+        //
+        //        if (method_exists(static::class, 'restored')) {
+        //            static::restored(function (Model $model): void {
+        //                $model->revisions()->restore();
+        //            });
+        //        }
+        //
+        //        if (method_exists(static::class, 'forceDeleted')) {
+        //            static::forceDeleted(function (Model $model): void {
+        //                $model->revisions()->forceDelete();
+        //            });
+        //        }
     }
 
     public function initializeHasVersioning(): void
@@ -77,7 +76,7 @@ trait HasVersioning
             $this->attributes,
             [
                 'is_current' => 1,
-                'record_id' => $this->id
+                'record_id' => $this->id,
             ]
         );
         unset($attributes['id']);
@@ -99,6 +98,7 @@ trait HasVersioning
     {
         $instance = $this->newRelatedInstance(static::class);
         $instance->setWithVersionTable(true);
+
         return $this->newHasMany(
             $instance->newQuery(), $this, $this->getVersionTable().'.record_id', $this->getKeyName()
         );
@@ -108,14 +108,15 @@ trait HasVersioning
     {
         $instance = $this->newRelatedInstance(static::class);
         $instance->setWithVersionTable(true);
+
         return $this->newHasOne(
             $instance->newQuery(), $this, $instance->getTable().'.record_id', $this->getKeyName()
         )->where('is_current', 1);
     }
 
-    public function syncCurrentVersion(): static | bool
+    public function syncCurrentVersion(): static|bool
     {
-        if (!$this->currentVersion) {
+        if (! $this->currentVersion) {
             return $this->recordNewVersion();
         }
 
@@ -185,7 +186,6 @@ trait HasVersioning
 
         return parent::getTable();
     }
-
 
     /**
      * Override the fireModelEvent method to prevent events from firing on

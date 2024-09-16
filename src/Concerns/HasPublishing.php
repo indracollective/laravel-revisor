@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Concerns;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Indra\Revisor\Contracts\RevisorContract;
@@ -12,9 +11,9 @@ use Indra\Revisor\Facades\Revisor;
 
 trait HasPublishing
 {
-    protected bool | null $publishOnCreated = null; // default to config value
+    protected ?bool $publishOnCreated = null; // default to config value
 
-    protected bool | null $publishOnUpdated = null; // default to config value
+    protected ?bool $publishOnUpdated = null; // default to config value
 
     protected bool $withPublishedTable = false;
 
@@ -32,21 +31,21 @@ trait HasPublishing
             }
         });
 
-//        static::deleted(function (Model $model): void {
-//            $model->revisions()->delete();
-//        });
-//
-//        if (method_exists(static::class, 'restored')) {
-//            static::restored(function (Model $model): void {
-//                $model->revisions()->restore();
-//            });
-//        }
-//
-//        if (method_exists(static::class, 'forceDeleted')) {
-//            static::forceDeleted(function (Model $model): void {
-//                $model->revisions()->forceDelete();
-//            });
-//        }
+        //        static::deleted(function (Model $model): void {
+        //            $model->revisions()->delete();
+        //        });
+        //
+        //        if (method_exists(static::class, 'restored')) {
+        //            static::restored(function (Model $model): void {
+        //                $model->revisions()->restore();
+        //            });
+        //        }
+        //
+        //        if (method_exists(static::class, 'forceDeleted')) {
+        //            static::forceDeleted(function (Model $model): void {
+        //                $model->revisions()->forceDelete();
+        //            });
+        //        }
     }
 
     public function initializeHasPublishing(): void
@@ -159,6 +158,7 @@ trait HasPublishing
     {
         $instance = $this->newRelatedInstance(static::class);
         $instance->setWithPublishedTable(true);
+
         return $this->newHasOne(
             $instance->newQuery(), $this, $instance->getTable().'.'.$this->getKeyName(), $this->getKeyName()
         );

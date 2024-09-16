@@ -4,13 +4,11 @@ namespace Indra\Revisor\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\RevisorServiceProvider;
-use Indra\Revisor\Tests\Models\User;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Orchestra\Testbench\Attributes\WithMigration;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 #[WithMigration]
 class TestCase extends Orchestra

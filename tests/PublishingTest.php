@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\DB;
+use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\Tests\Models\Page;
 use Indra\Revisor\Tests\Models\User;
-use \Illuminate\Support\Facades\DB;
-use \Indra\Revisor\Facades\Revisor;
 
 beforeEach(function () {
     Revisor::getAllTablesFor('pages')->each(fn ($table) => DB::table($table)->truncate());
@@ -71,4 +71,3 @@ it('publishes and unpublishes a record when explicitly called', function () {
     $unpublished = Page::withPublishedTable()->find($page->id);
     expect($unpublished)->toBeNull();
 });
-

@@ -32,7 +32,7 @@ trait HasRevisor
     public function setWithPublishedTable(bool $bool = true): static
     {
         $this->withPublishedTable = $bool;
-        $this->withVersionTable = !$bool;
+        $this->withVersionTable = ! $bool;
 
         return $this;
     }
@@ -40,7 +40,7 @@ trait HasRevisor
     public function setWithVersionTable(bool $bool = true): static
     {
         $this->withVersionTable = $bool;
-        $this->withPublishedTable = !$bool;
+        $this->withPublishedTable = ! $bool;
 
         return $this;
     }
@@ -77,5 +77,4 @@ trait HasRevisor
             "eloquent.{$event}: ".static::class, $this
         );
     }
-
 }
