@@ -59,5 +59,5 @@ it('can rollback versions', function () {
     $page->update(['title' => 'Home 2']);
     $page->update(['title' => 'Home 2']);
 
-//    dd($page->versions()->count());
+    //    dd($page->versions()->count());
 });
