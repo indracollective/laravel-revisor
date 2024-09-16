@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Indra\Revisor;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 class Revisor
@@ -80,11 +81,20 @@ class Revisor
     }
 
     /**
-     * Get the name of the table that holds the published verions
+     * Get the name of the table that holds the published versions
      * of the records for the given baseTableName
      **/
     public static function getPublishedTableFor(string $baseTableName): string
     {
-        return $baseTableName.'_live';
+        return $baseTableName.'_published';
+    }
+
+    public static function getAllTablesFor(string $baseTableName): Collection
+    {
+        return collect([
+            $baseTableName,
+            static::getPublishedTableFor($baseTableName),
+            static::getVersionTableFor($baseTableName),
+        ]);
     }
 }
