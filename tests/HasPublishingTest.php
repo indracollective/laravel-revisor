@@ -11,31 +11,50 @@ beforeEach(function () {
     Revisor::getAllTablesFor('pages')->each(fn ($table) => DB::table($table)->truncate());
 });
 
-it('does not publish a record on save when not configured to do so', function () {
-    $page = Page::create(['title' => 'Homes']);
+it('publishes on created only when configured to do so', function () {
+    $page = Page::create(['title' => 'Home']);
     $page->refresh();
     expect($page->is_published)->toBeFalse()
         ->and(Page::withPublishedTable()->find($page->id))->toBeNull();
-});
 
-it('publishes a record on save when configured to do so globally', function () {
-    config()->set('revisor.publish_on_save', true);
-    $page = Page::make(['title' => 'Homer']);
+    // global on
+    config()->set('revisor.publish_on_created', true);
+    $page = Page::create(['title' => 'Home 2']);
+    $page->refresh();
+    expect($page->is_published)->toBeTrue()
+        ->and($page->publishedRecord->title)->toBe($page->title);
+
+    // global off + instance on
+    config()->set('revisor.publish_on_created', false);
+    $page = Page::make(['title' => 'Home 3']);
+    $page->publishOnCreated();
     $page->save();
     $page->refresh();
-
     expect($page->is_published)->toBeTrue()
-        ->and($page->publishedRecord->id)->toBe($page->id)
         ->and($page->publishedRecord->title)->toBe($page->title);
 });
 
-it('publishes a record on save when configured to do so on the model', function () {
-    $page = Page::make(['title' => 'Homer'])->publishOnSave();
-    $page->save();
+it('publishes on updated only when configured to do so', function () {
+    $page = Page::create(['title' => 'Home']);
     $page->refresh();
+    expect($page->is_published)->toBeFalse()
+        ->and(Page::withPublishedTable()->find($page->id))->toBeNull();
 
+    // global on
+    config()->set('revisor.publish_on_updated', true);
+    $page = Page::create(['title' => 'Home 2']);
+    $page->update(['title' => 'Home 3']);
+    $page->refresh();
     expect($page->is_published)->toBeTrue()
-        ->and($page->publishedRecord->id)->toBe($page->id)
+        ->and($page->publishedRecord->title)->toBe($page->title);
+
+    // global off + instance on
+    config()->set('revisor.publish_on_updated', false);
+    $page = Page::create(['title' => 'Home 4']);
+    $page->publishOnUpdated();
+    $page->update(['title' => 'Home 5']);
+    $page->refresh();
+    expect($page->is_published)->toBeTrue()
         ->and($page->publishedRecord->title)->toBe($page->title);
 });
 

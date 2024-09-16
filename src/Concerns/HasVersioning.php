@@ -161,6 +161,13 @@ trait HasVersioning
             $this->recordNewVersionOnCreated;
     }
 
+    public function recordNewVersionOnUpdated(bool $bool = true): static
+    {
+        $this->recordNewVersionOnUpdated = $bool;
+
+        return $this;
+    }
+
     public function shouldRecordNewVersionOnUpdated(): bool
     {
         return is_null($this->recordNewVersionOnUpdated) ?

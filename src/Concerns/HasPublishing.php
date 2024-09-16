@@ -30,22 +30,6 @@ trait HasPublishing
                 $model->publish();
             }
         });
-
-        //        static::deleted(function (Model $model): void {
-        //            $model->revisions()->delete();
-        //        });
-        //
-        //        if (method_exists(static::class, 'restored')) {
-        //            static::restored(function (Model $model): void {
-        //                $model->revisions()->restore();
-        //            });
-        //        }
-        //
-        //        if (method_exists(static::class, 'forceDeleted')) {
-        //            static::forceDeleted(function (Model $model): void {
-        //                $model->revisions()->forceDelete();
-        //            });
-        //        }
     }
 
     public function initializeHasPublishing(): void
