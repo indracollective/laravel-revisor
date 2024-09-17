@@ -6,8 +6,8 @@ namespace Indra\Revisor\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\Contracts\HasVersioning as HasVersioningContract;
+use Indra\Revisor\Facades\Revisor;
 
 trait HasVersioning
 {
@@ -76,7 +76,7 @@ trait HasVersioning
             ->except(['id'])
             ->merge([
                 'record_id' => $this->id,
-                'version_number' => ($this->versions()->max('version_number') ?? 0) + 1
+                'version_number' => ($this->versions()->max('version_number') ?? 0) + 1,
             ])
             ->toArray();
 
@@ -156,7 +156,7 @@ trait HasVersioning
 
     public function syncCurrentVersion(): HasVersioningContract|bool
     {
-        if (!$this->currentVersion) {
+        if (! $this->currentVersion) {
             return $this->recordNewVersion();
         }
 

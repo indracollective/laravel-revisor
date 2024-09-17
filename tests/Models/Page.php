@@ -9,7 +9,7 @@ use Indra\Revisor\Concerns\HasRevisor;
 use Indra\Revisor\Contracts\HasPublishing as HasPublishingContract;
 use Indra\Revisor\Contracts\HasVersioning as HasVersioningContract;
 
-class Page extends Model implements HasVersioningContract, HasPublishingContract
+class Page extends Model implements HasPublishingContract, HasVersioningContract
 {
     use HasRevisor;
 
