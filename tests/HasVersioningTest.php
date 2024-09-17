@@ -53,6 +53,22 @@ it('creates a new version on updated only when configured to do so', function ()
     expect($page->versions()->count())->toBe(3);
 });
 
+it('numbers versions sequentially', function () {
+    $page = Page::create(['title' => 'Home']);
+    $page->publish();
+
+    expect($page->currentVersion->version_number)->toBe(1)
+        ->and($page->version_number)->toBe(1)
+        ->and($page->publishedRecord->version_number)->toBe(1);
+
+    $page->update(['title' => 'Home 2']);
+    $page->publish();
+
+    expect($page->currentVersion->version_number)->toBe(2)
+        ->and($page->version_number)->toBe(2)
+        ->and($page->publishedRecord->version_number)->toBe(2);
+});
+
 it('can rollback versions', function () {
     $page = Page::create(['title' => 'Home']);
     $page->update(['title' => 'Home 2']);

@@ -23,8 +23,9 @@ class Revisor
             $callback($table);
             $table->nullableMorphs('publisher');
             $table->timestamp('published_at')->nullable();
-            $table->boolean('is_current')->default(0);
-            $table->boolean('is_published')->default(0);
+            $table->boolean('is_current')->default(0)->index();
+            $table->boolean('is_published')->default(0)->index();
+            $table->integer('version_number')->unsigned()->nullable()->index();
             $table->foreignId('record_id')->constrained($baseTableName)->cascadeOnDelete();
         });
 
@@ -35,6 +36,7 @@ class Revisor
             $table->timestamp('published_at')->nullable();
             $table->boolean('is_current')->default(0);
             $table->boolean('is_published')->default(0);
+            $table->integer('version_number')->unsigned()->nullable()->index();
         });
 
         // create the base table
@@ -44,6 +46,7 @@ class Revisor
             $table->timestamp('published_at')->nullable();
             $table->boolean('is_current')->default(0);
             $table->boolean('is_published')->default(0);
+            $table->integer('version_number')->unsigned()->nullable()->index();
         });
     }
 

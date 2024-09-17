@@ -65,7 +65,9 @@ trait HasPublishing
         // fire the published event
         $this->fireModelEvent('published');
 
-        return $this->fresh();
+        $this->refresh();
+
+        return $this;
     }
 
     /**
@@ -96,7 +98,9 @@ trait HasPublishing
         // fire the unpublished event
         $this->fireModelEvent('unpublished');
 
-        return $this->fresh();
+        $this->refresh();
+
+        return $this;
     }
 
     /**
@@ -117,7 +121,7 @@ trait HasPublishing
     public function applyStateToPublishedRecord(): static
     {
         // find or make the published record
-        $published = static::withPublishedTable()->findOrNew($this->{$this->getKey()});
+        $published = $this->publishedRecord ?? static::withPublishedTable();
 
         // copy the attributes from the base record to the published record
         $published->forceFill($this->attributes);

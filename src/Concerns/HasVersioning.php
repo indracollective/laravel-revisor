@@ -62,8 +62,9 @@ trait HasVersioning
     }
 
     /**
-     * Create a new record in the version table
-     * Ensure it is_current and other versions are not
+     * Creates a new record in the version table
+     * Ensures it is_current and other versions are not
+     * Updates the current base record to have the new version_number
      */
     public function recordNewVersion(): static|bool
     {
@@ -77,6 +78,7 @@ trait HasVersioning
             [
                 'is_current' => 1,
                 'record_id' => $this->id,
+                'version_number' => ($this->versions()->max('version_number') ?? 0) + 1,
             ]
         );
         unset($attributes['id']);
@@ -86,8 +88,11 @@ trait HasVersioning
         // update all other versions to not be current
         $this->versions()
             ->where('is_current', 1)
-            ->whereNot($version->getKeyName(), $version->getKey())
-            ->each(fn ($version) => $version->forceFill(['is_current' => 0])->saveQuietly());
+            ->where($version->getKeyName(), '!=', $version->getKey())
+            ->update(['is_current' => 0]);
+
+        // update the current base record to have the new version_number
+        $this->forceFill(['version_number' => $version->version_number])->saveQuietly();
 
         $this->fireModelEvent('savedNewVersion');
 
