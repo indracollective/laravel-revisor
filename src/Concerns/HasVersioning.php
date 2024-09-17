@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Concerns;
 
-use Illuminate\Database\Eloquent\Builder;
+use Exception;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Indra\Revisor\Contracts\HasVersioning as HasVersioningContract;
@@ -13,6 +13,7 @@ use Indra\Revisor\Facades\Revisor;
 trait HasVersioning
 {
     protected static null|int|bool $keepRevisions = null;
+
     protected ?bool $recordNewVersionOnCreated = null; // default to config value
 
     protected ?bool $recordNewVersionOnUpdated = null; // default to config value
@@ -37,6 +38,19 @@ trait HasVersioning
 
         static::saving(function (HasVersioningContract $model) {
             $model->is_current = true;
+        });
+
+        static::deleted(function (HasVersioningContract $model) {
+            // Remove version number from base record if it has the
+            // version_number of the version being deleted
+            if ($model->isVersionTableRecord()) {
+                $baseRecord = app(static::class)->find($model->record_id);
+
+                if ($baseRecord && $baseRecord->version_number === $model->version_number) {
+                    $baseRecord->version_number = null;
+                    $baseRecord->save();
+                }
+            }
         });
 
         //        static::deleted(function (Model $model): void {
@@ -117,8 +131,10 @@ trait HasVersioning
         return $this->rollbackToVersion($version);
     }
 
-    public function setVersionAsCurrent(HasVersioningContract|int $version, array $attributes = []): HasVersioningContract
-    {
+    public function setVersionAsCurrent(
+        HasVersioningContract|int $version,
+        array $attributes = []
+    ): HasVersioningContract {
         $version = is_int($version) ? $this->versions()->find($version) : $version;
 
         // update the version record with the given attributes
@@ -163,16 +179,16 @@ trait HasVersioning
         return static::$keepRevisions;
     }
 
-    public function prunableVersions(): ?HasMany
+    public function prunableVersions(): HasMany
     {
         $keep = $this->shouldKeepRevisions();
 
         // int = prune the oldest, keeping n revisions
         if (is_int($keep)) {
             return $this->versions()->where('is_current', 0)
-                ->orderBy('version_number')
-                ->take($keep);
-
+                ->orderBy('version_number', 'asc')
+                ->skip($keep)
+                ->take(PHP_INT_MAX);
         }
 
         // false = prune all revisions
@@ -180,8 +196,8 @@ trait HasVersioning
             return $this->versions();
         }
 
-        // true = no pruning! keep all revisions
-        return null;
+        // true = avoid pruning entirely by returning no prunable versions
+        return $this->versions()->whereRaw('1 = 0');
     }
 
     public function currentVersion(): HasOne
@@ -207,10 +223,14 @@ trait HasVersioning
 
     public function pruneVersions(): HasVersioningContract
     {
-        if (method_exists(static::class, 'forceDelete')) {
-            $this->versions->prunable()->forceDelete();
+        if (! $this->prunableVersions->count()) {
+            return $this;
+        }
+
+        if (method_exists($this->prunableVersions->first(), 'forceDelete')) {
+            $this->prunableVersions->each->forceDelete();
         } else {
-            $this->versions->prunable()->delete();
+            $this->prunableVersions->each->delete();
         }
 
         return $this;
@@ -256,13 +276,10 @@ trait HasVersioning
             $this->recordNewVersionOnUpdated;
     }
 
-    public function getBaseTable(): string
-    {
-        return parent::getTable();
-    }
-
     public function getVersionTable(): string
     {
+        dump($this->getBaseTable());
+
         return Revisor::getVersionTableFor($this->getBaseTable());
     }
 
@@ -272,12 +289,13 @@ trait HasVersioning
             return Revisor::getVersionTableFor($this->getBaseTable());
         }
 
-        return parent::getTable();
+        return $this->getBaseTable();
     }
 
     /**
      * Override the fireModelEvent method to prevent events from firing on
      * the version or published tables.
+     * todo: remove this when the event system is refactored
      */
     protected function fireModelEvent($event, $halt = true): mixed
     {
@@ -286,5 +304,29 @@ trait HasVersioning
         }
 
         return parent::fireModelEvent($event, $halt);
+    }
+
+    public function isVersionTableRecord(): bool
+    {
+        dump($this->getVersionTable());
+
+        return $this->getTable() === $this->getVersionTable();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function baseRecord(): HasOne
+    {
+        if ($this->isBaseTableRecord()) {
+            throw new Exception('Cannot get base record for base table record');
+        }
+
+        $instance = $this->newRelatedInstance(static::class);
+        $instance->setWithBaseTable(true);
+
+        return $this->newHasOne(
+            $instance->newQuery(), $this, $instance->getTable().'.id', 'record_id'
+        );
     }
 }

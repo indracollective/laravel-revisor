@@ -197,4 +197,9 @@ trait HasPublishing
     {
         return Revisor::getPublishedTableFor($this->getBaseTable());
     }
+
+    public function isPublishedTableRecord(): bool
+    {
+        return $this->getTable() === $this->getPublishedTable();
+    }
 }

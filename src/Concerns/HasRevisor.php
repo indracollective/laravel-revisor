@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Concerns;
 
+use Illuminate\Support\Str;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasRevisor
@@ -11,9 +12,14 @@ trait HasRevisor
     use HasPublishing;
     use HasVersioning;
 
+    /*
+     * Reimplementation of the getTable method to allow for a custom / dynamic
+     * getTable method on this trait, that returns the contextually
+     * appropriate table (base, version, published)
+     * */
     public function getBaseTable(): string
     {
-        return parent::getTable();
+        return $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
     }
 
     public function getTable(): string
@@ -26,7 +32,12 @@ trait HasRevisor
             return Revisor::getVersionTableFor($this->getBaseTable());
         }
 
-        return parent::getTable();
+        return $this->getBaseTable();
+    }
+
+    public function isBaseTableRecord(): bool
+    {
+        return $this->getTable() === $this->getBaseTable();
     }
 
     public function setWithPublishedTable(bool $bool = true): static
@@ -48,6 +59,7 @@ trait HasRevisor
     /**
      * Override the fireModelEvent method to prevent events from firing on
      * the version or published tables.
+     * todo: remove this when the event system is refactored
      */
     protected function fireModelEvent($event, $halt = true): mixed
     {

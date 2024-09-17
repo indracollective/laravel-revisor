@@ -7,7 +7,7 @@ use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\Tests\Models\Page;
 
 beforeEach(function () {
-    Revisor::getAllTablesFor('pages')->each(fn ($table) => DB::table($table)->truncate());
+    Revisor::getAllTablesFor('pages')->each(fn($table) => DB::table($table)->truncate());
 });
 
 it('sets is_current to true on save', function () {
@@ -91,4 +91,33 @@ it('can rollback versions', function () {
     $page->RollbackToVersionNumber(1);
     expect($page->currentVersion->version_number)->toBe(1)
         ->and($page->currentVersion->title)->toBe('Home');
+});
+
+it('prunes old versions correctly with global config', function () {
+    // no pruning
+    config()->set('revisor.keep_versions', true);
+
+    $page = Page::create(['title' => 'Home']);
+    $page->update(['title' => 'Home 2']);
+    $page->update(['title' => 'Home 3']);
+    $page->update(['title' => 'Home 4']);
+
+    expect($page->versions()->count())->toBe(4)
+        ->and($page->currentVersion->version_number)->toBe(4);
+
+    // prune n
+    config()->set('revisor.keep_versions', 2);
+    $page->update(['title' => 'Home 5']);
+    expect($page->versions()->where('is_current', 0)->count())->toBe(2)
+        ->and($page->currentVersion->version_number)->toBe(5);
+
+    // prune all
+    config()->set('revisor.keep_versions', false);
+    $page->update(['title' => 'Home 6']);
+    $page->refresh();
+
+    expect($page->versions()->count())->toBe(0)
+        ->and($page->version_number)->toBeNull()
+        ->and($page->currentVersion)->toBeNull();
+
 });
