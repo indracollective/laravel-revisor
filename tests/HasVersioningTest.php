@@ -7,7 +7,7 @@ use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\Tests\Models\Page;
 
 beforeEach(function () {
-    Revisor::getAllTablesFor('pages')->each(fn($table) => DB::table($table)->truncate());
+    Revisor::getAllTablesFor('pages')->each(fn ($table) => DB::table($table)->truncate());
 });
 
 it('sets is_current to true on save', function () {
