@@ -55,7 +55,7 @@ trait HasRevisor
             return true;
         }
 
-        if (! isset(static::$dispatcher)) {
+        if (!isset(static::$dispatcher)) {
             return true;
         }
 

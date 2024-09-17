@@ -6,8 +6,8 @@ namespace Indra\Revisor\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Indra\Revisor\Contracts\RevisorContract;
 use Indra\Revisor\Facades\Revisor;
+use Indra\Revisor\Contracts\HasVersioning as HasVersioningContract;
 
 trait HasVersioning
 {
@@ -19,13 +19,13 @@ trait HasVersioning
 
     public static function bootHasVersioning(): void
     {
-        static::created(function (RevisorContract $model) {
+        static::created(function (HasVersioningContract $model) {
             if ($model->shouldRecordNewVersionOnCreated()) {
                 $model->recordNewVersion();
             }
         });
 
-        static::updated(function (RevisorContract $model) {
+        static::updated(function (HasVersioningContract $model) {
             if ($model->shouldRecordNewVersionOnUpdated()) {
                 $model->recordNewVersion();
             } else {
@@ -33,7 +33,7 @@ trait HasVersioning
             }
         });
 
-        static::saving(function (RevisorContract $model) {
+        static::saving(function (HasVersioningContract $model) {
             $model->is_current = true;
         });
 
@@ -66,35 +66,70 @@ trait HasVersioning
      * Ensures it is_current and other versions are not
      * Updates the current base record to have the new version_number
      */
-    public function recordNewVersion(): static|bool
+    public function recordNewVersion(): HasVersioningContract|bool
     {
         if ($this->fireModelEvent('savingNewVersion') === false) {
             return false;
         }
 
-        $version = static::withVersionTable();
-        $attributes = array_merge(
-            $this->attributes,
-            [
-                'is_current' => 1,
+        $attributes = collect($this->attributes)
+            ->except(['id'])
+            ->merge([
                 'record_id' => $this->id,
-                'version_number' => ($this->versions()->max('version_number') ?? 0) + 1,
-            ]
-        );
-        unset($attributes['id']);
+                'version_number' => ($this->versions()->max('version_number') ?? 0) + 1
+            ])
+            ->toArray();
 
-        $version->forceFill($attributes)->saveQuietly();
-
-        // update all other versions to not be current
-        $this->versions()
-            ->where('is_current', 1)
-            ->where($version->getKeyName(), '!=', $version->getKey())
-            ->update(['is_current' => 0]);
-
-        // update the current base record to have the new version_number
-        $this->forceFill(['version_number' => $version->version_number])->saveQuietly();
+        $this->setVersionAsCurrent(static::withVersionTable(), $attributes);
 
         $this->fireModelEvent('savedNewVersion');
+
+        return $this;
+    }
+
+    public function rollbackToVersion(HasVersioningContract|int $version): HasVersioningContract
+    {
+        $version = is_int($version) ? $this->versions()->find($version) : $version;
+
+        $this->fireModelEvent('rollingBackToVersion', $version);
+
+        // set the version as current and save it
+        $this->setVersionAsCurrent($version);
+
+        // update the current base record to have the data from the version
+        $this->forceFill(collect($version->getAttributes())->except(['id', 'record_id'])->toArray())
+            ->saveQuietly();
+
+        $this->fireModelEvent('rolledBackToVersion', $version);
+
+        return $this->refresh();
+    }
+
+    public function rollbackToVersionNumber(int $versionNumber): HasVersioningContract
+    {
+        $version = $this->versions()->firstWhere('version_number', $versionNumber);
+
+        return $this->rollbackToVersion($version);
+    }
+
+    public function setVersionAsCurrent(HasVersioningContract|int $version, array $attributes = []): HasVersioningContract
+    {
+        $version = is_int($version) ? $this->versions()->find($version) : $version;
+
+        // update the version record with the given attributes
+        $version->forceFill($attributes);
+
+        // update all other versions to not be current
+        // and set this version as current and save it
+        $this->versions()->where('is_current', 1)->update(['is_current' => 0]);
+        $version->forceFill(['is_current' => 1])->saveQuietly();
+
+        // update the current base record to have the new version_number
+        if ($this->version_number !== $version->version_number) {
+            $this->forceFill(['version_number' => $version->version_number])->saveQuietly();
+        }
+
+        $this->refresh();
 
         return $this;
     }
@@ -119,9 +154,9 @@ trait HasVersioning
         )->where('is_current', 1);
     }
 
-    public function syncCurrentVersion(): static|bool
+    public function syncCurrentVersion(): HasVersioningContract|bool
     {
-        if (! $this->currentVersion) {
+        if (!$this->currentVersion) {
             return $this->recordNewVersion();
         }
 
@@ -130,29 +165,19 @@ trait HasVersioning
         return $this;
     }
 
-    public static function withVersionTable(): static
+    public static function withVersionTable(): HasVersioningContract
     {
-        $instance = new static;
-        $instance->setWithVersionTable();
-
-        return $instance;
+        return app(static::class)->setWithVersionTable();
     }
 
-    public function setWithPublishedTable(bool $bool = true): static
-    {
-        $this->withPublishedTable = $bool;
-
-        return $this;
-    }
-
-    public function setWithVersionTable(bool $bool = true): static
+    public function setWithVersionTable(bool $bool = true): HasVersioningContract
     {
         $this->withVersionTable = $bool;
 
         return $this;
     }
 
-    public function recordNewVersionOnCreated(bool $bool = true): static
+    public function recordNewVersionOnCreated(bool $bool = true): HasVersioningContract
     {
         $this->recordNewVersionOnCreated = $bool;
 
@@ -166,7 +191,7 @@ trait HasVersioning
             $this->recordNewVersionOnCreated;
     }
 
-    public function recordNewVersionOnUpdated(bool $bool = true): static
+    public function recordNewVersionOnUpdated(bool $bool = true): HasVersioningContract
     {
         $this->recordNewVersionOnUpdated = $bool;
 

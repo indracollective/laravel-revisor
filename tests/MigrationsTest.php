@@ -25,6 +25,7 @@ it('creates and amends revisor schemas', function () {
         'content',
         'created_at',
         'updated_at',
+        'version_number'
     ];
 
     sort($expectedColumns);

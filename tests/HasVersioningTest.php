@@ -66,14 +66,29 @@ it('numbers versions sequentially', function () {
 
     expect($page->currentVersion->version_number)->toBe(2)
         ->and($page->version_number)->toBe(2)
-        ->and($page->publishedRecord->version_number)->toBe(2);
+        ->and($page->publishedRecord->version_number)->toBe(2)
+        ->and($page->versions()->count())->toBe(2);
 });
 
 it('can rollback versions', function () {
     $page = Page::create(['title' => 'Home']);
     $page->update(['title' => 'Home 2']);
-    $page->update(['title' => 'Home 2']);
-    $page->update(['title' => 'Home 2']);
 
-    //    dd($page->versions()->count());
+    expect($page->versions()->count())->toBe(2)
+        ->and($page->currentVersion->version_number)->toBe(2);
+
+    // rollback to version object
+    $page->rollbackToVersion($page->versions->first());
+    expect($page->currentVersion->version_number)->toBe(1)
+        ->and($page->currentVersion->title)->toBe('Home');
+
+    // rollback to version id
+    $page->rollbackToVersion($page->versions->last()->id);
+    expect($page->currentVersion->version_number)->toBe(2)
+        ->and($page->currentVersion->title)->toBe('Home 2');
+
+    // rollback to version number
+    $page->RollbackToVersionNumber(1);
+    expect($page->currentVersion->version_number)->toBe(1)
+        ->and($page->currentVersion->title)->toBe('Home');
 });
