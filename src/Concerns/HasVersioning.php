@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Concerns;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Indra\Revisor\Contracts\HasVersioning as HasVersioningContract;
@@ -11,6 +12,7 @@ use Indra\Revisor\Facades\Revisor;
 
 trait HasVersioning
 {
+    protected static null|int|bool $keepRevisions = null;
     protected ?bool $recordNewVersionOnCreated = null; // default to config value
 
     protected ?bool $recordNewVersionOnUpdated = null; // default to config value
@@ -65,6 +67,7 @@ trait HasVersioning
      * Creates a new record in the version table
      * Ensures it is_current and other versions are not
      * Updates the current base record to have the new version_number
+     * Prunes old versions
      */
     public function recordNewVersion(): HasVersioningContract|bool
     {
@@ -81,6 +84,8 @@ trait HasVersioning
             ->toArray();
 
         $this->setVersionAsCurrent(static::withVersionTable(), $attributes);
+
+        $this->pruneVersions();
 
         $this->fireModelEvent('savedNewVersion');
 
@@ -144,6 +149,41 @@ trait HasVersioning
         );
     }
 
+    public static function keepRevisions(null|int|bool $keep = true): void
+    {
+        static::$keepRevisions = $keep;
+    }
+
+    public function shouldKeepRevisions(): int|bool
+    {
+        if (static::$keepRevisions === null) {
+            return config('revisor.keep_versions');
+        }
+
+        return static::$keepRevisions;
+    }
+
+    public function prunableVersions(): ?HasMany
+    {
+        $keep = $this->shouldKeepRevisions();
+
+        // int = prune the oldest, keeping n revisions
+        if (is_int($keep)) {
+            return $this->versions()->where('is_current', 0)
+                ->orderBy('version_number')
+                ->take($keep);
+
+        }
+
+        // false = prune all revisions
+        if ($keep === false) {
+            return $this->versions();
+        }
+
+        // true = no pruning! keep all revisions
+        return null;
+    }
+
     public function currentVersion(): HasOne
     {
         $instance = $this->newRelatedInstance(static::class);
@@ -161,6 +201,17 @@ trait HasVersioning
         }
 
         $this->currentVersion->updateQuietly($this->attributes);
+
+        return $this;
+    }
+
+    public function pruneVersions(): HasVersioningContract
+    {
+        if (method_exists(static::class, 'forceDelete')) {
+            $this->versions->prunable()->forceDelete();
+        } else {
+            $this->versions->prunable()->delete();
+        }
 
         return $this;
     }
