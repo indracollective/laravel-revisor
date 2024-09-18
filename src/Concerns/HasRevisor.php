@@ -5,17 +5,42 @@ declare(strict_types=1);
 namespace Indra\Revisor\Concerns;
 
 use Illuminate\Support\Str;
-use Indra\Revisor\Facades\Revisor;
+use Indra\Revisor\Contracts\HasPublishing as HasPublishingContract;
 
 trait HasRevisor
 {
     use HasPublishing;
     use HasVersioning;
 
-    public function newInstance($attributes = [], $exists = false)
-    {
-        $model = parent::newInstance($attributes, $exists);
+    protected string $baseTable;
 
+    //    public function newInstance($attributes = [], $exists = false)
+    //    {
+    //        $model = parent::newInstance($attributes, $exists);
+    //        $model->setTable($this->getBaseTable());
+    //
+    //        return $model;
+    //    }
+
+    public function newPublishedInstance($attributes = [], $exists = false): HasPublishingContract
+    {
+        $model = $this->newInstance($attributes, $exists);
+        $model->setTable($this->getPublishedTable());
+
+        return $model;
+    }
+
+    public function newVersionInstance($attributes = [], $exists = false): HasPublishingContract
+    {
+        $model = $this->newInstance($attributes, $exists);
+        $model->setTable($this->getVersionTable());
+
+        return $model;
+    }
+
+    public function newBaseInstance($attributes = [], $exists = false): HasPublishingContract
+    {
+        $model = $this->newInstance($attributes, $exists);
         $model->setTable($this->getBaseTable());
 
         return $model;
@@ -28,25 +53,12 @@ trait HasRevisor
      * */
     public function getBaseTable(): string
     {
-        //        if ($this->table === 'page_versions') {
-        //            // dump a stack trace
-        //            dump($this->table);
-        //        }
-
-        return $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
+        return $this->baseTable ?? Str::snake(Str::pluralStudly(class_basename($this)));
     }
 
     public function getTable(): string
     {
-        if ($this->withPublishedTable) {
-            return Revisor::getPublishedTableFor($this->getBaseTable());
-        }
-
-        if ($this->withVersionTable) {
-            return Revisor::getVersionTableFor($this->getBaseTable());
-        }
-
-        return $this->getBaseTable();
+        return $this->table ?? $this->getBaseTable();
     }
 
     public function isBaseTableRecord(): bool

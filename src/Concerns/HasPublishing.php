@@ -15,8 +15,6 @@ trait HasPublishing
 
     protected ?bool $publishOnUpdated = null; // default to config value
 
-    protected bool $withPublishedTable = false;
-
     public static function bootHasPublishing(): void
     {
         static::created(function (HasPublishingContract $model) {
@@ -88,7 +86,7 @@ trait HasPublishing
         $this->setUnpublishedAttributes();
 
         // delete the published record
-        static::withPublishedTable()
+        app(static::class)->withPublishedTable()
             ->firstWhere($this->getKeyName(), $this->getKey())
             ->deleteQuietly();
 
@@ -144,8 +142,8 @@ trait HasPublishing
 
     public function publishedRecord(): HasOne
     {
-        $instance = $this->newRelatedInstance(static::class);
-        $instance->setWithPublishedTable(true);
+        $instance = $this->newRelatedInstance(static::class)
+            ->setTable($this->getPublishedTable());
 
         return $this->newHasOne(
             $instance->newQuery(), $this, $instance->getTable().'.'.$this->getKeyName(), $this->getKeyName()
@@ -159,14 +157,7 @@ trait HasPublishing
 
     public static function withPublishedTable(): HasPublishingContract
     {
-        return app(static::class)->setWithPublishedTable();
-    }
-
-    public function setWithPublishedTable(bool $bool = true): HasPublishingContract
-    {
-        $this->withPublishedTable = $bool;
-
-        return $this;
+        return app(static::class)->newPublishedInstance();
     }
 
     public function publishOnCreated(bool $bool = true): HasPublishingContract

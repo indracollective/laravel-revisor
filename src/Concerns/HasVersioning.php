@@ -243,7 +243,7 @@ trait HasVersioning
 
     public static function withVersionTable(): HasVersioningContract
     {
-        return app(static::class)->setWithVersionTable();
+        return app(static::class)->newInstance();
     }
 
     public function setWithVersionTable(bool $bool = true): HasVersioningContract
