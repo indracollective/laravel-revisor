@@ -204,10 +204,15 @@ trait HasVersioning
     {
         $instance = $this->newRelatedInstance(static::class);
         $instance->setWithVersionTable(true);
+        dump('A', $instance->table);
 
-        return $this->newHasOne(
+        $res = $this->newHasOne(
             $instance->newQuery(), $this, $instance->getTable().'.record_id', $this->getKeyName()
         )->where('is_current', 1);
+
+        dump($res->first()->table);
+
+        return $res;
     }
 
     public function syncCurrentVersion(): HasVersioningContract|bool
@@ -278,8 +283,6 @@ trait HasVersioning
 
     public function getVersionTable(): string
     {
-        dump($this->getBaseTable());
-
         return Revisor::getVersionTableFor($this->getBaseTable());
     }
 
@@ -308,8 +311,6 @@ trait HasVersioning
 
     public function isVersionTableRecord(): bool
     {
-        dump($this->getVersionTable());
-
         return $this->getTable() === $this->getVersionTable();
     }
 

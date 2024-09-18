@@ -12,6 +12,15 @@ trait HasRevisor
     use HasPublishing;
     use HasVersioning;
 
+    public function newInstance($attributes = [], $exists = false)
+    {
+        $model = parent::newInstance($attributes, $exists);
+
+        $model->setTable($this->getBaseTable());
+
+        return $model;
+    }
+
     /*
      * Reimplementation of the getTable method to allow for a custom / dynamic
      * getTable method on this trait, that returns the contextually
@@ -19,6 +28,11 @@ trait HasRevisor
      * */
     public function getBaseTable(): string
     {
+        //        if ($this->table === 'page_versions') {
+        //            // dump a stack trace
+        //            dump($this->table);
+        //        }
+
         return $this->table ?? Str::snake(Str::pluralStudly(class_basename($this)));
     }
 

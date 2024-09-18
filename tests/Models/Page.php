@@ -13,6 +13,8 @@ class Page extends Model implements HasPublishingContract, HasVersioningContract
 {
     use HasRevisor;
 
+    protected $table = 'pages';
+
     protected $fillable = [
         'title',
         'description',
