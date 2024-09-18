@@ -45,7 +45,18 @@ trait HasVersioning
             // version_number of the version being deleted
             if ($model->isVersionTableRecord()) {
                 $baseRecord = app(static::class)->find($model->record_id);
+                if ($baseRecord && $baseRecord->version_number === $model->version_number) {
+                    $baseRecord->version_number = null;
+                    $baseRecord->save();
+                }
+            }
+        });
 
+        static::forceDeleted(function (HasVersioningContract $model) {
+            // Remove version number from base record if it has the
+            // version_number of the version being deleted
+            if ($model->isVersionTableRecord()) {
+                $baseRecord = app(static::class)->find($model->record_id);
                 if ($baseRecord && $baseRecord->version_number === $model->version_number) {
                     $baseRecord->version_number = null;
                     $baseRecord->save();
@@ -97,7 +108,7 @@ trait HasVersioning
             ])
             ->toArray();
 
-        $this->setVersionAsCurrent(static::withVersionTable(), $attributes);
+        $this->setVersionAsCurrent($this->newVersionInstance()->forceFill($attributes));
 
         $this->pruneVersions();
 
@@ -131,14 +142,9 @@ trait HasVersioning
         return $this->rollbackToVersion($version);
     }
 
-    public function setVersionAsCurrent(
-        HasVersioningContract|int $version,
-        array $attributes = []
-    ): HasVersioningContract {
+    public function setVersionAsCurrent(HasVersioningContract|int $version): HasVersioningContract
+    {
         $version = is_int($version) ? $this->versions()->find($version) : $version;
-
-        // update the version record with the given attributes
-        $version->forceFill($attributes);
 
         // update all other versions to not be current
         // and set this version as current and save it
@@ -157,12 +163,15 @@ trait HasVersioning
 
     public function versions(): HasMany
     {
-        $instance = $this->newRelatedInstance(static::class);
+        $instance = $this->newRelatedInstance(static::class)->setTable($this->getVersionTable());
+
         $instance->setWithVersionTable(true);
 
-        return $this->newHasMany(
+        $res = $this->newHasMany(
             $instance->newQuery(), $this, $this->getVersionTable().'.record_id', $this->getKeyName()
         );
+
+        return $res;
     }
 
     public static function keepRevisions(null|int|bool $keep = true): void
@@ -202,17 +211,12 @@ trait HasVersioning
 
     public function currentVersion(): HasOne
     {
-        $instance = $this->newRelatedInstance(static::class);
-        $instance->setWithVersionTable(true);
-        dump('A', $instance->table);
+        $instance = $this->newRelatedInstance(static::class)
+            ->setTable($this->getVersionTable());
 
-        $res = $this->newHasOne(
+        return $this->newHasOne(
             $instance->newQuery(), $this, $instance->getTable().'.record_id', $this->getKeyName()
         )->where('is_current', 1);
-
-        dump($res->first()->table);
-
-        return $res;
     }
 
     public function syncCurrentVersion(): HasVersioningContract|bool
@@ -232,7 +236,7 @@ trait HasVersioning
             return $this;
         }
 
-        if (method_exists($this->prunableVersions->first(), 'forceDelete')) {
+        if (method_exists($this->prunableVersions->first(), 'softDeleted')) {
             $this->prunableVersions->each->forceDelete();
         } else {
             $this->prunableVersions->each->delete();

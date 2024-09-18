@@ -12,8 +12,6 @@ trait HasRevisor
     use HasPublishing;
     use HasVersioning;
 
-    protected string $baseTable;
-
     //    public function newInstance($attributes = [], $exists = false)
     //    {
     //        $model = parent::newInstance($attributes, $exists);
