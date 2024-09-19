@@ -160,9 +160,9 @@ trait HasVersioning
         // set the version as current and save it
         $this->setVersionAsCurrent($version);
 
-        // update the current base record to have the data from the version
-        $this->forceFill(collect($version->getAttributes())->except(['id', 'record_id'])->toArray())
-            ->saveQuietly();
+        // update the current draft record to have the data from the version
+        $attributes = collect($version->getAttributes())->except(['id', 'record_id'])->toArray();
+        $this->forceFill($attributes)->saveQuietly();
 
         $this->fireModelEvent('rolledBackToVersion', $version);
 
@@ -185,7 +185,7 @@ trait HasVersioning
         $this->versions()->where('is_current', 1)->update(['is_current' => 0]);
         $version->forceFill(['is_current' => 1])->saveQuietly();
 
-        // update the current base record to have the new version_number
+        // update the current draft record to have the new version_number
         if ($this->version_number !== $version->version_number) {
             $this->forceFill(['version_number' => $version->version_number])->saveQuietly();
         }

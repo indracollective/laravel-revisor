@@ -67,9 +67,9 @@ trait HasPublishing
     /**
      * Publish the model.
      *
-     * Sets the base record to a published state.
-     * Copies the base record to the published table.
-     * Saves the updated base record.
+     * Sets the draft record to a published state.
+     * Copies the draft record to the published table.
+     * Saves the updated draft record.
      */
     public function publish(): HasPublishingContract|bool
     {
@@ -77,13 +77,13 @@ trait HasPublishing
             return false;
         }
 
-        // put the base record in published state
+        // put the draft record in published state
         $this->setPublishedAttributes();
 
-        // copy the base record to the published table
+        // copy the draft record to the published table
         $this->applyStateToPublishedRecord();
 
-        // save the base record
+        // save the draft record
         $this->saveQuietly();
 
         // fire the published event
@@ -97,9 +97,9 @@ trait HasPublishing
     /**
      * Unpublish the model.
      *
-     * Sets the base record to an unpublished state.
+     * Sets the draft record to an unpublished state.
      * Deletes the corresponding record from the published table.
-     * Saves the updated base record.
+     * Saves the updated draft record.
      * Fires the unpublished event.
      */
     public function unpublish(): HasPublishingContract
@@ -108,7 +108,7 @@ trait HasPublishing
             return $this;
         }
 
-        // put the base record in unpublished state
+        // put the draft record in unpublished state
         $this->setUnpublishedAttributes();
 
         // delete the published record
@@ -116,7 +116,7 @@ trait HasPublishing
             ->firstWhere($this->getKeyName(), $this->getKey())
             ->deleteQuietly();
 
-        // save the base record
+        // save the draft record
         $this->save();
 
         // fire the unpublished event
@@ -150,12 +150,11 @@ trait HasPublishing
         // find or make the published record
         $published = $this->publishedRecord ?? static::make()->setTable($this->getPublishedTable());
 
-        // copy the attributes from the base record to the published record
+        // copy the attributes from the draft record to the published record
         $published->forceFill($this->attributes);
 
-        // save the published record quietly as it's effectively
-        // a read-only copy of the base record
-        $published->saveQuietly();
+        // save the published record
+        $published->save();
 
         return $this;
     }

@@ -27,7 +27,7 @@ trait HasRevisor
     /*
      * Reimplementation of the getTable method to allow for a custom / dynamic
      * getTable method on the model, that returns the contextually appropriate
-     * table (base, version, published) based on the currentRevisorMode
+     * table (draft, version, published) based on the currentRevisorMode
      * */
     public function getTable(): string
     {
