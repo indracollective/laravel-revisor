@@ -4,97 +4,59 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Concerns;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-use Indra\Revisor\Contracts\HasPublishing as HasPublishingContract;
+use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Facades\Revisor;
 
 trait HasRevisor
 {
     use HasPublishing;
     use HasVersioning;
 
-    //    public function newInstance($attributes = [], $exists = false)
-    //    {
-    //        $model = parent::newInstance($attributes, $exists);
-    //        $model->setTable($this->getBaseTable());
-    //
-    //        return $model;
-    //    }
-
-    public function newPublishedInstance($attributes = [], $exists = false): HasPublishingContract
-    {
-        $model = $this->newInstance($attributes, $exists);
-        $model->setTable($this->getPublishedTable());
-
-        return $model;
-    }
-
-    public function newVersionInstance($attributes = [], $exists = false): HasPublishingContract
-    {
-        $model = $this->newInstance($attributes, $exists);
-        $model->setTable($this->getVersionTable());
-
-        return $model;
-    }
-
-    public function newBaseInstance($attributes = [], $exists = false): HasPublishingContract
-    {
-        $model = $this->newInstance($attributes, $exists);
-        $model->setTable($this->getBaseTable());
-
-        return $model;
-    }
+    protected ?RevisorMode $mode = null;
 
     /*
-     * Reimplementation of the getTable method to allow for a custom / dynamic
-     * getTable method on this trait, that returns the contextually
-     * appropriate table (base, version, published)
+     * Get the base table name for the model
      * */
     public function getBaseTable(): string
     {
         return $this->baseTable ?? Str::snake(Str::pluralStudly(class_basename($this)));
     }
 
+    /*
+     * Reimplementation of the getTable method to allow for a custom / dynamic
+     * getTable method on the model, that returns the contextually appropriate
+     * table (base, version, published) based on the currentRevisorMode
+     * */
     public function getTable(): string
     {
-        return $this->table ?? $this->getBaseTable();
+        return $this->table ?? Revisor::getSuffixedTableNameFor($this->getBaseTable());
     }
 
-    public function isBaseTableRecord(): bool
+    /*
+     * Get the Draft table name for the model
+     * */
+    public function getDraftTable(): string
     {
-        return $this->getTable() === $this->getBaseTable();
+        return Revisor::getDraftTableFor($this->getBaseTable());
     }
 
-    public function setWithPublishedTable(bool $bool = true): static
+    /*
+     * Get a Builder instance for the Draft table
+     **/
+    public static function withDraftTable(): Builder
     {
-        $this->withPublishedTable = $bool;
-        $this->withVersionTable = ! $bool;
+        $instance = new static;
 
-        return $this;
+        return $instance->setTable($instance->getDraftTable())->newQuery();
     }
 
-    public function setWithVersionTable(bool $bool = true): static
+    /*
+     * Check if the model is a Draft table record
+     **/
+    public function isDraftTableRecord(): bool
     {
-        $this->withVersionTable = $bool;
-        $this->withPublishedTable = ! $bool;
-
-        return $this;
-    }
-
-    /**
-     * Override the fireModelEvent method to prevent events from firing on
-     * the version or published tables.
-     * todo: remove this when the event system is refactored
-     */
-    protected function fireModelEvent($event, $halt = true): mixed
-    {
-        if ($this->getTable() !== $this->getBaseTable()) {
-            return true;
-        }
-
-        if (! isset(static::$dispatcher)) {
-            return true;
-        }
-
-        return parent::fireModelEvent($event, $halt);
+        return $this->getTable() === $this->getDraftTable();
     }
 }

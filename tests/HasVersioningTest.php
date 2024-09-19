@@ -25,7 +25,7 @@ it('creates a new version on created only when configured to do so', function ()
         ->and($page->currentVersion->title)->toBe('Home');
 
     // global off
-    config()->set('revisor.record_new_version_on_created', false);
+    config()->set('revisor.versioning.record_new_version_on_created', false);
     $page = Page::create(['title' => 'About']);
     expect($page->versions()->count())->toBe(0);
 
@@ -45,7 +45,7 @@ it('creates a new version on updated only when configured to do so', function ()
     expect($page->versions()->count())->toBe(2);
 
     // global off
-    config()->set('revisor.record_new_version_on_updated', false);
+    config()->set('revisor.versioning.record_new_version_on_updated', false);
     $page->update(['title' => 'Home 3']);
     expect($page->versions()->count())->toBe(2);
 
@@ -96,7 +96,7 @@ it('can rollback versions', function () {
 
 it('prunes old versions correctly with global config', function () {
     // no pruning
-    config()->set('revisor.keep_versions', true);
+    config()->set('revisor.versioning.keep_versions', true);
 
     $page = Page::create(['title' => 'Home']);
     $page->update(['title' => 'Home 2']);
@@ -107,18 +107,17 @@ it('prunes old versions correctly with global config', function () {
         ->and($page->currentVersion->version_number)->toBe(4);
 
     // prune n
-    config()->set('revisor.keep_versions', 2);
+    config()->set('revisor.versioning.keep_versions', 2);
     $page->update(['title' => 'Home 5']);
     expect($page->versions()->where('is_current', 0)->count())->toBe(2)
         ->and($page->currentVersion->version_number)->toBe(5);
 
     // prune all
-    config()->set('revisor.keep_versions', false);
+    config()->set('revisor.versioning.keep_versions', false);
     $page->update(['title' => 'Home 6']);
     $page->refresh();
 
     expect($page->versions()->count())->toBe(0)
         ->and($page->version_number)->toBeNull()
         ->and($page->currentVersion)->toBeNull();
-
 });

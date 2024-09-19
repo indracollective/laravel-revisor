@@ -18,14 +18,14 @@ it('publishes on created only when configured to do so', function () {
         ->and(Page::withPublishedTable()->find($page->id))->toBeNull();
 
     // global on
-    config()->set('revisor.publish_on_created', true);
+    config()->set('revisor.publishing.publish_on_created', true);
     $page = Page::create(['title' => 'Home 2']);
     $page->refresh();
     expect($page->is_published)->toBeTrue()
         ->and($page->publishedRecord->title)->toBe($page->title);
 
     // global off + instance on
-    config()->set('revisor.publish_on_created', false);
+    config()->set('revisor.publishing.publish_on_created', false);
     $page = Page::make(['title' => 'Home 3']);
     $page->publishOnCreated();
     $page->save();
@@ -41,7 +41,7 @@ it('publishes on updated only when configured to do so', function () {
         ->and(Page::withPublishedTable()->find($page->id))->toBeNull();
 
     // global on
-    config()->set('revisor.publish_on_updated', true);
+    config()->set('revisor.publishing.publish_on_updated', true);
     $page = Page::create(['title' => 'Home 2']);
     $page->update(['title' => 'Home 3']);
     $page->refresh();
@@ -49,7 +49,7 @@ it('publishes on updated only when configured to do so', function () {
         ->and($page->publishedRecord->title)->toBe($page->title);
 
     // global off + instance on
-    config()->set('revisor.publish_on_updated', false);
+    config()->set('revisor.publishing.publish_on_updated', false);
     $page = Page::create(['title' => 'Home 4']);
     $page->publishOnUpdated();
     $page->update(['title' => 'Home 5']);

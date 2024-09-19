@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Concerns;
 
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Indra\Revisor\Contracts\HasPublishing as HasPublishingContract;
@@ -11,10 +13,21 @@ use Indra\Revisor\Facades\Revisor;
 
 trait HasPublishing
 {
-    protected ?bool $publishOnCreated = null; // default to config value
+    /*
+     * Whether to publish the record when a new instance of the model is created
+     * Overrides the global config if true or false
+     **/
+    protected ?bool $publishOnCreated = null;
 
+    /*
+     * Whether to publish the record when an instance of the model is updated
+     * Overrides the global config if true or false
+     **/
     protected ?bool $publishOnUpdated = null; // default to config value
 
+    /*
+     * Register model event listeners
+     **/
     public static function bootHasPublishing(): void
     {
         static::created(function (HasPublishingContract $model) {
@@ -30,12 +43,25 @@ trait HasPublishing
         });
     }
 
+    /*
+     * Merge the published_at and is_published casts to the model
+     **/
     public function initializeHasPublishing(): void
     {
         $this->mergeCasts([
             'published_at' => 'datetime',
             'is_published' => 'boolean',
         ]);
+    }
+
+    /*
+     * Get a Builder instance for the Published table
+     **/
+    public static function withPublishedTable(): Builder
+    {
+        $instance = new static;
+
+        return $instance->setTable($instance->getPublishedTable())->newQuery();
     }
 
     /**
@@ -86,7 +112,7 @@ trait HasPublishing
         $this->setUnpublishedAttributes();
 
         // delete the published record
-        app(static::class)->withPublishedTable()
+        static::withPublishedTable()
             ->firstWhere($this->getKeyName(), $this->getKey())
             ->deleteQuietly();
 
@@ -116,10 +142,13 @@ trait HasPublishing
         return $this;
     }
 
+    /*
+     * Apply the state of this record to the published record
+     **/
     public function applyStateToPublishedRecord(): HasPublishingContract
     {
         // find or make the published record
-        $published = $this->publishedRecord ?? static::withPublishedTable();
+        $published = $this->publishedRecord ?? static::make()->setTable($this->getPublishedTable());
 
         // copy the attributes from the base record to the published record
         $published->forceFill($this->attributes);
@@ -131,6 +160,10 @@ trait HasPublishing
         return $this;
     }
 
+    /*
+     * Set the publishing related attributes on
+     * the model to their unpublished state
+     **/
     public function setUnpublishedAttributes(): HasPublishingContract
     {
         $this->published_at = null;
@@ -140,26 +173,29 @@ trait HasPublishing
         return $this;
     }
 
+    /*
+     * Get the published record for this model
+     **/
     public function publishedRecord(): HasOne
     {
-        $instance = $this->newRelatedInstance(static::class)
-            ->setTable($this->getPublishedTable());
+        $instance = static::withPublishedTable();
 
         return $this->newHasOne(
-            $instance->newQuery(), $this, $instance->getTable().'.'.$this->getKeyName(), $this->getKeyName()
+            $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $this->getKeyName()
         );
     }
 
+    /*
+     * Get the publisher relationship for this model
+     **/
     public function publisher(): MorphTo
     {
         return $this->morphTo('publisher');
     }
 
-    public static function withPublishedTable(): HasPublishingContract
-    {
-        return app(static::class)->newPublishedInstance();
-    }
-
+    /*
+     * Set whether to publish the record when a new instance of the model is created
+     **/
     public function publishOnCreated(bool $bool = true): HasPublishingContract
     {
         $this->publishOnCreated = $bool;
@@ -167,6 +203,9 @@ trait HasPublishing
         return $this;
     }
 
+    /*
+     * Set whether to publish the record when an instance of the model is updated
+     **/
     public function publishOnUpdated(bool $bool = true): HasPublishingContract
     {
         $this->publishOnUpdated = $bool;
@@ -174,23 +213,67 @@ trait HasPublishing
         return $this;
     }
 
+    /*
+     * Get whether to publish the record when a new instance of the model is created
+     **/
     public function shouldPublishOnCreated(): bool
     {
-        return is_null($this->publishOnCreated) ? config('revisor.publish_on_created') : $this->publishOnCreated;
+        return is_null($this->publishOnCreated) ? config('revisor.publishing.publish_on_created') : $this->publishOnCreated;
     }
 
+    /*
+     * Get whether to publish the record when an instance of the model is updated
+     **/
     public function shouldPublishOnUpdated(): bool
     {
-        return is_null($this->publishOnUpdated) ? config('revisor.publish_on_updated') : $this->publishOnUpdated;
+        return is_null($this->publishOnUpdated) ? config('revisor.publishing.publish_on_updated') : $this->publishOnUpdated;
     }
 
+    /*
+     * Get the Published table name for the model
+     **/
     public function getPublishedTable(): string
     {
         return Revisor::getPublishedTableFor($this->getBaseTable());
     }
 
+    /*
+     * Check if the model is a Published table record
+     **/
     public function isPublishedTableRecord(): bool
     {
         return $this->getTable() === $this->getPublishedTable();
+    }
+
+    /**
+     * Register a "publishing" model event callback with the dispatcher.
+     */
+    public static function publishing(string|Closure $callback): void
+    {
+        static::registerModelEvent('publishing', $callback);
+    }
+
+    /**
+     * Register a "published" model event callback with the dispatcher.
+     */
+    public static function published(string|Closure $callback): void
+    {
+        static::registerModelEvent('published', $callback);
+    }
+
+    /**
+     * Register a "unpublishing" model event callback with the dispatcher.
+     */
+    public static function unpublishing(string|Closure $callback): void
+    {
+        static::registerModelEvent('unpublishing', $callback);
+    }
+
+    /**
+     * Register a "unpublished" model event callback with the dispatcher.
+     */
+    public static function unpublished(string|Closure $callback): void
+    {
+        static::registerModelEvent('unpublished', $callback);
     }
 }
