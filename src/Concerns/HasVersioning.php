@@ -13,27 +13,27 @@ use Indra\Revisor\Facades\Revisor;
 
 trait HasVersioning
 {
-    /*
+    /**
      * Number of versions to keep on this particular model
      * Overrides the global config if not null
-     **/
+     */
     protected null|int|bool $keepVersions = null;
 
-    /*
+    /**
      * Whether to record a new version when a new instance of the model is created
      * Overrides the global config if true or false
-     **/
+     */
     protected ?bool $recordNewVersionOnCreated = null;
 
-    /*
+    /**
      * Whether to record a new version when a new instance of the model is updated
      * Overrides the global config if true or false
-     **/
+     */
     protected ?bool $recordNewVersionOnUpdated = null;
 
-    /*
+    /**
      * Register model event listeners
-     **/
+     */
     public static function bootHasVersioning(): void
     {
         static::created(function (HasRevisorContract $model) {
@@ -65,52 +65,11 @@ trait HasVersioning
 
             $model->is_current = true;
         });
-
-        static::deleted(function (HasRevisorContract $model) {
-            // Remove version number from base record if it has the
-            // version_number of the version being deleted
-            if ($model->isVersionTableRecord()) {
-                $draftRecord = static::withDraftTable()->find($model->record_id);
-
-                if ($draftRecord && $draftRecord->version_number === $model->version_number) {
-                    $draftRecord->version_number = null;
-                    $draftRecord->save();
-                }
-            }
-        });
-
-        //        static::softDeleted(function (HasRevisor $model) {
-        //            // Remove version number from base record if it has the
-        //            // version_number of the version being deleted
-        //            if ($model->isVersionTableRecord()) {
-        //                $baseRecord = app(static::class)->find($model->record_id);
-        //                if ($baseRecord && $baseRecord->version_number === $model->version_number) {
-        //                    $baseRecord->version_number = null;
-        //                    $baseRecord->save();
-        //                }
-        //            }
-        //        });
-
-        //        static::deleted(function (Model $model): void {
-        //            $model->revisions()->delete();
-        //        });
-        //
-        //        if (method_exists(static::class, 'restored')) {
-        //            static::restored(function (Model $model): void {
-        //                $model->revisions()->restore();
-        //            });
-        //        }
-        //
-        //        if (method_exists(static::class, 'forceDelete')) {
-        //            static::forceDeleted(function (Model $model): void {
-        //                $model->revisions()->forceDelete();
-        //            });
-        //        }
     }
 
-    /*
+    /**
      * Merge the is_current cast to the model
-     **/
+     */
     public function initializeHasVersioning(): void
     {
         $this->mergeCasts([
@@ -148,9 +107,9 @@ trait HasVersioning
         return $this;
     }
 
-    /*
+    /**
      * Rollback the Draft table record to the given version
-     **/
+     */
     public function revertToVersion(HasRevisorContract|int $version): HasRevisorContract
     {
         $version = is_int($version) ? $this->versions()->find($version) : $version;
@@ -275,9 +234,9 @@ trait HasVersioning
         return $this;
     }
 
-    /*
+    /**
      * Get a Builder instance for the Version table
-     **/
+     */
     public static function withVersionTable(): Builder
     {
         $instance = new static;

@@ -4,7 +4,7 @@
 use Indra\Revisor\Enums\RevisorMode;
 
 return [
-    'default_mode' => RevisorMode::Draft,
+    'default_mode' => RevisorMode::Published,
     'table_suffixes' => [
         RevisorMode::Draft->value => '_drafts',
         RevisorMode::Version->value => '_versions',

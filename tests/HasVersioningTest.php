@@ -121,3 +121,15 @@ it('prunes old versions correctly with global config', function () {
         ->and($page->version_number)->toBeNull()
         ->and($page->currentVersion)->toBeNull();
 });
+
+it('removes version number from draft and published records when version deleted', function () {
+    $page = Page::create(['title' => 'Home']);
+    $page->update(['title' => 'Home 2']);
+
+    $page->versions()->first()->delete();
+
+    expect($page->versions()->count())->toBe(1)
+        ->and($page->versions->first()->version_number)->toBe(2)
+        ->and($page->publishedRecord->version_number)->toBe(2)
+        ->and($page->currentVersion->version_number)->toBe(2);
+});

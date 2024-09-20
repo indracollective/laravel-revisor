@@ -12,19 +12,14 @@ use Indra\Revisor\Enums\RevisorMode;
 
 class Revisor
 {
-    protected RevisorMode $mode;
-
-    public function __construct()
-    {
-        $this->setMode(config('revisor.default_mode'));
-    }
+    protected ?RevisorMode $mode = null;
 
     /**
      * Creates 3 tables for the given table name:
      * - {baseTableName}_versions, which holds all the versions of the records
      * - {baseTableName}_live, which holds the published version of the records
      * - {baseTableName}, which holds the base data / drafts of the records
-     **/
+     */
     public function createTableSchemas(string $baseTableName, Closure $callback): void
     {
         // create the versions table
@@ -64,7 +59,7 @@ class Revisor
      * - {baseTableName}_versions, which holds all the versions of the records
      * - {baseTableName}_live, which holds the published version of the records
      * - {baseTableName}, which holds the base data / drafts of the records
-     **/
+     */
     public function amendTableSchemas(string $baseTableName, Closure $callback): void
     {
         // amend the versions table
@@ -86,7 +81,7 @@ class Revisor
     /**
      * Get the name of the table that holds the versions
      * of the records for the given baseTableName
-     **/
+     */
     public function getVersionTableFor(string $baseTableName): string
     {
         return $this->getSuffixedTableNameFor($baseTableName, RevisorMode::Version);
@@ -95,7 +90,7 @@ class Revisor
     /**
      * Get the name of the table that holds the published
      * records for the given baseTableName
-     **/
+     */
     public function getPublishedTableFor(string $baseTableName): string
     {
         return $this->getSuffixedTableNameFor($baseTableName, RevisorMode::Published);
@@ -104,7 +99,7 @@ class Revisor
     /**
      * Get the name of the table that holds the draft
      * records for the given baseTableName
-     **/
+     */
     public function getDraftTableFor(string $baseTableName): string
     {
         return $this->getSuffixedTableNameFor($baseTableName, RevisorMode::Draft);
@@ -113,7 +108,7 @@ class Revisor
     /**
      * Get the suffixed table name for the given baseTableName
      * and RevisorMode (defaults to the current mode)
-     **/
+     */
     public function getSuffixedTableNameFor(string $baseTableName, ?RevisorMode $mode = null): string
     {
         $mode = $mode ?? $this->getMode();
@@ -125,7 +120,7 @@ class Revisor
 
     /**
      * Get all the tables for the given baseTableName
-     **/
+     */
     public function getAllTablesFor(string $baseTableName): Collection
     {
         return collect([
@@ -137,15 +132,15 @@ class Revisor
 
     /**
      * Get the current RevisorMode
-     **/
+     */
     public function getMode(): RevisorMode
     {
-        return $this->mode;
+        return $this->mode ?? config('revisor.default_mode');
     }
 
     /**
      * Set the current RevisorMode
-     **/
+     */
     public function setMode(RevisorMode $mode): static
     {
         $this->mode = $mode;
@@ -156,7 +151,7 @@ class Revisor
     /**
      * Execute the given callback with the given RevisorMode
      * Useful for switching modes temporarily
-     **/
+     */
     public function withMode(RevisorMode $mode, callable $callback): mixed
     {
         $previousMode = $this->mode;
@@ -171,7 +166,7 @@ class Revisor
 
     /**
      * Execute the given callback with the Version RevisorMode
-     **/
+     */
     public function withPublishedMode(callable $callback): mixed
     {
         return $this->withMode(RevisorMode::Published, $callback);
@@ -179,7 +174,7 @@ class Revisor
 
     /**
      * Execute the given callback with the Version RevisorMode
-     **/
+     */
     public function withVersionMode(callable $callback): mixed
     {
         return $this->withMode(RevisorMode::Version, $callback);
@@ -187,7 +182,7 @@ class Revisor
 
     /**
      * Execute the given callback with the Draft RevisorMode
-     **/
+     */
     public function withDraftMode(callable $callback): mixed
     {
         return $this->withMode(RevisorMode::Draft, $callback);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Indra\Revisor\Concerns;
 
 use Closure;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -13,21 +14,21 @@ use Indra\Revisor\Facades\Revisor;
 
 trait HasPublishing
 {
-    /*
+    /**
      * Whether to publish the record when a new instance of the model is created
      * Overrides the global config if true or false
-     **/
+     */
     protected ?bool $publishOnCreated = null;
 
-    /*
+    /**
      * Whether to publish the record when an instance of the model is updated
      * Overrides the global config if true or false
-     **/
+     */
     protected ?bool $publishOnUpdated = null; // default to config value
 
-    /*
+    /**
      * Register model event listeners
-     **/
+     */
     public static function bootHasPublishing(): void
     {
         static::created(function (HasRevisorContract $model) {
@@ -43,9 +44,9 @@ trait HasPublishing
         });
     }
 
-    /*
+    /**
      * Merge the published_at and is_published casts to the model
-     **/
+     */
     public function initializeHasPublishing(): void
     {
         $this->mergeCasts([
@@ -54,9 +55,9 @@ trait HasPublishing
         ]);
     }
 
-    /*
+    /**
      * Get a Builder instance for the Published table
-     **/
+     */
     public static function withPublishedTable(): Builder
     {
         $instance = new static;
@@ -114,7 +115,7 @@ trait HasPublishing
         // delete the published record
         static::withPublishedTable()
             ->firstWhere($this->getKeyName(), $this->getKey())
-            ->deleteQuietly();
+            ?->deleteQuietly();
 
         // save the draft record
         $this->save();
@@ -142,9 +143,9 @@ trait HasPublishing
         return $this;
     }
 
-    /*
+    /**
      * Apply the state of this record to the published record
-     **/
+     */
     public function applyStateToPublishedRecord(): HasRevisorContract
     {
         // find or make the published record
@@ -159,10 +160,10 @@ trait HasPublishing
         return $this;
     }
 
-    /*
+    /**
      * Set the publishing related attributes on
      * the model to their unpublished state
-     **/
+     */
     public function setUnpublishedAttributes(): HasRevisorContract
     {
         $this->published_at = null;
@@ -172,11 +173,17 @@ trait HasPublishing
         return $this;
     }
 
-    /*
+    /**
      * Get the published record for this model
-     **/
+     *
+     * @throws Exception
+     */
     public function publishedRecord(): HasOne
     {
+        if (! $this->isDraftTableRecord()) {
+            throw new Exception("The published record is only available for draft records, this is a $this->table record");
+        }
+
         $instance = static::withPublishedTable();
 
         return $this->newHasOne(
@@ -184,17 +191,35 @@ trait HasPublishing
         );
     }
 
-    /*
+    /**
+     * Get the draft record for this model
+     *
+     * @throws Exception
+     */
+    public function draftRecord(): HasOne
+    {
+        if (! $this->isPublishedTableRecord()) {
+            throw new Exception('The draft record is only available for published records');
+        }
+
+        $instance = static::withDraftTable();
+
+        return $this->newHasOne(
+            $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $this->getKeyName()
+        );
+    }
+
+    /**
      * Get the publisher relationship for this model
-     **/
+     */
     public function publisher(): MorphTo
     {
         return $this->morphTo('publisher');
     }
 
-    /*
+    /**
      * Set whether to publish the record when a new instance of the model is created
-     **/
+     */
     public function publishOnCreated(bool $bool = true): HasRevisorContract
     {
         $this->publishOnCreated = $bool;
@@ -202,9 +227,9 @@ trait HasPublishing
         return $this;
     }
 
-    /*
+    /**
      * Set whether to publish the record when an instance of the model is updated
-     **/
+     */
     public function publishOnUpdated(bool $bool = true): HasRevisorContract
     {
         $this->publishOnUpdated = $bool;
@@ -212,33 +237,33 @@ trait HasPublishing
         return $this;
     }
 
-    /*
+    /**
      * Get whether to publish the record when a new instance of the model is created
-     **/
+     */
     public function shouldPublishOnCreated(): bool
     {
         return is_null($this->publishOnCreated) ? config('revisor.publishing.publish_on_created') : $this->publishOnCreated;
     }
 
-    /*
+    /**
      * Get whether to publish the record when an instance of the model is updated
-     **/
+     */
     public function shouldPublishOnUpdated(): bool
     {
         return is_null($this->publishOnUpdated) ? config('revisor.publishing.publish_on_updated') : $this->publishOnUpdated;
     }
 
-    /*
+    /**
      * Get the Published table name for the model
-     **/
+     */
     public function getPublishedTable(): string
     {
         return Revisor::getPublishedTableFor($this->getBaseTable());
     }
 
-    /*
+    /**
      * Check if the model is a Published table record
-     **/
+     */
     public function isPublishedTableRecord(): bool
     {
         return $this->getTable() === $this->getPublishedTable();

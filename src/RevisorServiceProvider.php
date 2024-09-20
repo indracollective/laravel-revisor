@@ -2,7 +2,9 @@
 
 namespace Indra\Revisor;
 
-use Indra\Revisor\Commands\RevisorCommand;
+use Illuminate\Contracts\Http\Kernel;
+use Indra\Revisor\Middleware\DraftMiddleware;
+use Indra\Revisor\Middleware\PublishedMiddleware;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -15,11 +17,13 @@ class RevisorServiceProvider extends PackageServiceProvider
          *
          * More info: https://github.com/spatie/laravel-package-tools
          */
-        $package
-            ->name('laravel-revisor')
-            ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_laravel_revisor_table')
-            ->hasCommand(RevisorCommand::class);
+        $package->name('laravel-revisor')->hasConfigFile();
+    }
+
+    public function packageBooted(): void
+    {
+        // ensure the middlewares are registered before the SubstituteBindings middleware
+        $this->app[Kernel::class]->prependToMiddlewarePriority(DraftMiddleware::class);
+        $this->app[Kernel::class]->prependToMiddlewarePriority(PublishedMiddleware::class);
     }
 }
