@@ -6,10 +6,9 @@ namespace Indra\Revisor\Tests\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Indra\Revisor\Concerns\HasRevisor;
-use Indra\Revisor\Contracts\HasPublishing as HasPublishingContract;
-use Indra\Revisor\Contracts\HasVersioning as HasVersioningContract;
+use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
 
-class Page extends Model implements HasPublishingContract, HasVersioningContract
+class Page extends Model implements HasRevisorContract
 {
     use HasRevisor;
 

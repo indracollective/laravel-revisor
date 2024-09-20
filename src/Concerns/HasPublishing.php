@@ -8,7 +8,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Indra\Revisor\Contracts\HasPublishing as HasPublishingContract;
+use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasPublishing
@@ -30,13 +30,13 @@ trait HasPublishing
      **/
     public static function bootHasPublishing(): void
     {
-        static::created(function (HasPublishingContract $model) {
+        static::created(function (HasRevisorContract $model) {
             if ($model->shouldPublishOnCreated()) {
                 $model->publish();
             }
         });
 
-        static::updated(function (HasPublishingContract $model) {
+        static::updated(function (HasRevisorContract $model) {
             if ($model->shouldPublishOnUpdated()) {
                 $model->publish();
             }
@@ -71,7 +71,7 @@ trait HasPublishing
      * Copies the draft record to the published table.
      * Saves the updated draft record.
      */
-    public function publish(): HasPublishingContract|bool
+    public function publish(): HasRevisorContract|bool
     {
         if ($this->fireModelEvent('publishing') === false) {
             return false;
@@ -102,7 +102,7 @@ trait HasPublishing
      * Saves the updated draft record.
      * Fires the unpublished event.
      */
-    public function unpublish(): HasPublishingContract
+    public function unpublish(): HasRevisorContract
     {
         if ($this->fireModelEvent('unpublishing') === false) {
             return $this;
@@ -133,7 +133,7 @@ trait HasPublishing
      * Updates the published_at timestamp, sets is_published to true,
      * and associates the current authenticated user as the publisher.
      */
-    public function setPublishedAttributes(): HasPublishingContract
+    public function setPublishedAttributes(): HasRevisorContract
     {
         $this->published_at = now();
         $this->is_published = true;
@@ -145,7 +145,7 @@ trait HasPublishing
     /*
      * Apply the state of this record to the published record
      **/
-    public function applyStateToPublishedRecord(): HasPublishingContract
+    public function applyStateToPublishedRecord(): HasRevisorContract
     {
         // find or make the published record
         $published = $this->publishedRecord ?? static::make()->setTable($this->getPublishedTable());
@@ -163,7 +163,7 @@ trait HasPublishing
      * Set the publishing related attributes on
      * the model to their unpublished state
      **/
-    public function setUnpublishedAttributes(): HasPublishingContract
+    public function setUnpublishedAttributes(): HasRevisorContract
     {
         $this->published_at = null;
         $this->is_published = false;
@@ -195,7 +195,7 @@ trait HasPublishing
     /*
      * Set whether to publish the record when a new instance of the model is created
      **/
-    public function publishOnCreated(bool $bool = true): HasPublishingContract
+    public function publishOnCreated(bool $bool = true): HasRevisorContract
     {
         $this->publishOnCreated = $bool;
 
@@ -205,7 +205,7 @@ trait HasPublishing
     /*
      * Set whether to publish the record when an instance of the model is updated
      **/
-    public function publishOnUpdated(bool $bool = true): HasPublishingContract
+    public function publishOnUpdated(bool $bool = true): HasRevisorContract
     {
         $this->publishOnUpdated = $bool;
 

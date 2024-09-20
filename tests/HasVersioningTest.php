@@ -79,17 +79,17 @@ it('can rollback versions', function () {
         ->and($page->currentVersion->version_number)->toBe(2);
 
     // rollback to version object
-    $page->rollbackToVersion($page->versions->first());
+    $page->revertToVersion($page->versions->first());
     expect($page->currentVersion->version_number)->toBe(1)
         ->and($page->currentVersion->title)->toBe('Home');
 
     // rollback to version id
-    $page->rollbackToVersion($page->versions->last()->id);
+    $page->revertToVersion($page->versions->last()->id);
     expect($page->currentVersion->version_number)->toBe(2)
         ->and($page->currentVersion->title)->toBe('Home 2');
 
     // rollback to version number
-    $page->RollbackToVersionNumber(1);
+    $page->revertToVersionNumber(1);
     expect($page->currentVersion->version_number)->toBe(1)
         ->and($page->currentVersion->title)->toBe('Home');
 });

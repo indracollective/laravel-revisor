@@ -9,9 +9,9 @@ it('creates and amends revisor schemas', function () {
     // table creation and amendments in TestCase.php
 
     // assert that expected tables exist
-    expect(Schema::hasTable('pages'))->toBeTrue();
-    expect(Schema::hasTable(Revisor::getVersionTableFor('pages')))->toBeTrue();
-    expect(Schema::hasTable(Revisor::getPublishedTableFor('pages')))->toBeTrue();
+    expect(Schema::hasTable(Revisor::getDraftTableFor('pages')))->toBeTrue()
+        ->and(Schema::hasTable(Revisor::getVersionTableFor('pages')))->toBeTrue()
+        ->and(Schema::hasTable(Revisor::getPublishedTableFor('pages')))->toBeTrue();
 
     // define expected columns
     $expectedColumns = [
