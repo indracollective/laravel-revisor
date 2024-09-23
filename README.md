@@ -61,12 +61,6 @@ return [
 
 [indraslab.github.io/laravel-revisor](https://indraslab.github.io/laravel-revisor/)
 
-## Testing
-
-```bash
-composer test
-```
-
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
@@ -77,7 +71,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Security Vulnerabilities
 
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+If you've found a bug regarding security please mail shea@livesource.co.nz instead of using the issue tracker.
 
 ## Credits
 
