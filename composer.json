@@ -1,12 +1,18 @@
 {
     "name": "indra/laravel-revisor",
-    "description": "Draft, publish and revisise Laravel Eloquent Models",
+    "description": "Draft, publish and revise Laravel Eloquent Models",
     "keywords": [
         "Indra",
         "laravel",
-        "laravel-revisor"
+        "laravel-revisor",
+        "draft",
+        "publish",
+        "revise",
+        "versions",
+        "eloquent",
+        "model"
     ],
-    "homepage": "https://github.com/indra/laravel-revisor",
+    "homepage": "https://github.com/IndrasLab/laravel-revisor",
     "license": "MIT",
     "authors": [
         {
@@ -35,8 +41,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Indra\\Revisor\\": "src/",
-            "Indra\\Revisor\\Database\\Factories\\": "database/factories/"
+            "Indra\\Revisor\\": "src/"
         }
     },
     "autoload-dev": {
