@@ -20,6 +20,7 @@ it('publishes on created only when configured to do so', function () {
     // global on
     config()->set('revisor.publishing.publish_on_created', true);
     $page = Page::create(['title' => 'Home 2']);
+
     $page->refresh();
     expect($page->is_published)->toBeTrue()
         ->and($page->publishedRecord->title)->toBe($page->title);

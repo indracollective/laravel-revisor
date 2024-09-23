@@ -32,13 +32,13 @@ trait HasPublishing
     public static function bootHasPublishing(): void
     {
         static::created(function (HasRevisorContract $model) {
-            if ($model->shouldPublishOnCreated()) {
+            if ($model->shouldPublishOnCreated() && $model->isDraftTableRecord()) {
                 $model->publish();
             }
         });
 
         static::updated(function (HasRevisorContract $model) {
-            if ($model->shouldPublishOnUpdated()) {
+            if ($model->shouldPublishOnUpdated() && $model->isDraftTableRecord()) {
                 $model->publish();
             }
         });
