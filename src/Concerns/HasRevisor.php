@@ -8,15 +8,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
-use Indra\Revisor\Enums\RevisorMode;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasRevisor
 {
     use HasPublishing;
     use HasVersioning;
-
-    protected ?RevisorMode $mode = null;
 
     public static function bootHasRevisor(): void
     {

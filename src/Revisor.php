@@ -40,7 +40,7 @@ class Revisor
             $table->timestamp('published_at')->nullable();
             $table->boolean('is_current')->default(0);
             $table->boolean('is_published')->default(0);
-            $table->integer('version_number')->unsigned()->nullable()->index();
+            $table->unsignedInteger('version_number')->unsigned()->nullable()->index();
         });
 
         // create the base table
