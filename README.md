@@ -1,9 +1,9 @@
 # Laravel Revisor
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/IndrasLab/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indra/laravel-revisor)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/IndrasLab/laravel-revisor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/indra/laravel-revisor/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/IndrasLab/laravel-revisor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/indra/laravel-revisor/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/IndrasLab/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indra/laravel-revisor)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/indracollective/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indra/laravel-revisor)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/indracollective/laravel-revisor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/indra/laravel-revisor/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/indracollective/laravel-revisor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/indra/laravel-revisor/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/indracollective/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indra/laravel-revisor)
 
 ## Robust drafting, publishing and version-tracking for Laravel Eloquent Models.
 
@@ -59,7 +59,7 @@ return [
 
 ## Read the docs
 
-[indraslab.github.io/laravel-revisor](https://indraslab.github.io/laravel-revisor/)
+[indracollective.github.io/laravel-revisor](https://indracollective.github.io/laravel-revisor/)
 
 ## Changelog
 

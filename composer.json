@@ -1,8 +1,9 @@
 {
-    "name": "indra/laravel-revisor",
+    "name": "indracollective/laravel-revisor",
     "description": "Draft, publish and revise Laravel Eloquent Models",
     "keywords": [
         "Indra",
+        "Collective",
         "laravel",
         "laravel-revisor",
         "draft",
@@ -12,7 +13,7 @@
         "eloquent",
         "model"
     ],
-    "homepage": "https://github.com/IndrasLab/laravel-revisor",
+    "homepage": "https://github.com/indracollective/laravel-revisor",
     "license": "MIT",
     "authors": [
         {
