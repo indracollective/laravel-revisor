@@ -1,19 +1,25 @@
-# Draft, publish and revisise Laravel Eloquent Models
+# Laravel Revisor
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/indra/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indra/laravel-revisor)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/indra/laravel-revisor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/indra/laravel-revisor/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/indra/laravel-revisor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/indra/laravel-revisor/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/indra/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indra/laravel-revisor)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/IndrasLab/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indra/laravel-revisor)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/IndrasLab/laravel-revisor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/indra/laravel-revisor/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/IndrasLab/laravel-revisor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/indra/laravel-revisor/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/IndrasLab/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indra/laravel-revisor)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+## Robust drafting, publishing and version-tracking for Laravel Eloquent Models.
 
-## Support us
+Laravel Revisor aims to provide the maximum power and flexibility possible in versioned record management, while
+maintaining a very low tolerance complexity. To achieve this, it offers:
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-revisor.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-revisor)
+✅ Separate, complete database tables for draft, published and version history records of each Model
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+✅ Migration API for easily creating/modifying draft, published and version history tables
 
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+✅ Easy context management for setting the appropriate reading/writing mode at all levels of operation, from global
+config, to middleware, mode callbacks and query builder level.
+
+✅ Clean, flexible API for drafting, publishing and version management
+
+✅ High configurability and excellent documentation
 
 ## Installation
 
@@ -21,13 +27,6 @@ You can install the package via composer:
 
 ```bash
 composer require indra/laravel-revisor
-```
-
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="laravel-revisor-migrations"
-php artisan migrate
 ```
 
 You can publish the config file with:
@@ -40,21 +39,27 @@ This is the contents of the published config file:
 
 ```php
 return [
+    'default_mode' => RevisorMode::Published,
+    'table_suffixes' => [
+        RevisorMode::Draft->value => '_drafts',
+        RevisorMode::Version->value => '_versions',
+        RevisorMode::Published->value => '_published',
+    ],
+    'publishing' => [
+        'publish_on_created' => false,
+        'publish_on_updated' => false,
+    ],
+    'versioning' => [
+        'record_new_version_on_created' => true,
+        'record_new_version_on_updated' => true,
+        'keep_versions' => 10,
+    ],
 ];
 ```
 
-Optionally, you can publish the views using
+## Read the docs
 
-```bash
-php artisan vendor:publish --tag="laravel-revisor-views"
-```
-
-## Usage
-
-```php
-$revisor = new Indra\Revisor();
-echo $revisor->echoPhrase('Hello, Indra!');
-```
+[indraslab.github.io/laravel-revisor](https://indraslab.github.io/laravel-revisor/)
 
 ## Testing
 
