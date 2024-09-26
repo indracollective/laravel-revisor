@@ -2,7 +2,7 @@
 
 Laravel Revisor aims to provide the maximum power and flexibility possible in versioned record management, while maintaining a very low tolerance for complexity.&#x20;
 
-
+### Features
 
 ✅ Separate, complete database tables for draft, published and version history records of each Model. Drafts and versions of recods are not second class citizens stored in single column json blobs
 

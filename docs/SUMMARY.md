@@ -10,4 +10,5 @@
 
 * [Setting up your Migrations](usage/setting-up-your-migrations.md)
 * [Setting up your Models](usage/setting-up-your-models.md)
+* [Modes & Dynamic Tables](usage/modes-and-dynamic-tables.md)
 * [Page](usage/page.md)
