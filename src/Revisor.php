@@ -22,20 +22,9 @@ class Revisor
      */
     public function createTableSchemas(string $baseTableName, Closure $callback): void
     {
-        // create the versions table
-        Schema::create(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback, $baseTableName) {
-            $callback($table);
-            $table->nullableMorphs('publisher');
-            $table->timestamp('published_at')->nullable();
-            $table->boolean('is_current')->default(0)->index();
-            $table->boolean('is_published')->default(0)->index();
-            $table->integer('version_number')->unsigned()->nullable()->index();
-            $table->foreignId('record_id')->constrained($baseTableName)->cascadeOnDelete();
-        });
-
-        // create the live table
-        Schema::create(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table);
+        // create the draft table
+        Schema::create(static::getDraftTableFor($baseTableName), function (Blueprint $table) use ($callback) {
+            $callback($table, RevisorMode::Draft);
             $table->nullableMorphs('publisher');
             $table->timestamp('published_at')->nullable();
             $table->boolean('is_current')->default(0);
@@ -43,9 +32,20 @@ class Revisor
             $table->unsignedInteger('version_number')->unsigned()->nullable()->index();
         });
 
-        // create the base table
-        Schema::create(static::getDraftTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table);
+        // create the versions table
+        Schema::create(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback, $baseTableName) {
+            $callback($table, RevisorMode::Version);
+            $table->nullableMorphs('publisher');
+            $table->timestamp('published_at')->nullable();
+            $table->boolean('is_current')->default(0)->index();
+            $table->boolean('is_published')->default(0)->index();
+            $table->integer('version_number')->unsigned()->nullable()->index();
+            $table->foreignId('record_id')->constrained(static::getDraftTableFor($baseTableName))->cascadeOnDelete();
+        });
+
+        // create the published table
+        Schema::create(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
+            $callback($table, RevisorMode::Published);
             $table->nullableMorphs('publisher');
             $table->timestamp('published_at')->nullable();
             $table->boolean('is_current')->default(0);
@@ -64,17 +64,27 @@ class Revisor
     {
         // amend the versions table
         Schema::table(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table);
+            $callback($table, RevisorMode::Version);
         });
 
-        // amend the live table
+        // amend the published table
         Schema::table(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table);
+            $callback($table, RevisorMode::Published);
         });
 
-        // amend the base table
+        // amend the draft table
         Schema::table(static::getDraftTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table);
+            $callback($table, RevisorMode::Draft);
+        });
+    }
+
+    /**
+     * Schema::dropIfExists() all the tables for the given baseTableName
+     */
+    public function dropTableSchemasIfExists(string $baseTableName): void
+    {
+        $this->getAllTablesFor($baseTableName)->each(function ($tableName) {
+            Schema::dropIfExists($tableName);
         });
     }
 
