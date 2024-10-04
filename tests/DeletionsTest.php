@@ -15,13 +15,13 @@ it('cascades deletions of draft records to the version and published records', f
     $page->publish();
     expect($page->publishedRecord->getTable())
         ->toBe($page->getPublishedTable())
-        ->and($page->currentVersion->getTable())
+        ->and($page->currentVersionRecord->getTable())
         ->toBe($page->getVersionTable());
 
     $page->delete();
 
-    expect(Page::withPublishedTable()->find($page->id))->toBeNull()
-        ->and(Page::withVersionTable()->firstWhere('record_id', $page->id))->toBeNull();
+    expect(Page::withPublishedMode()->find($page->id))->toBeNull()
+        ->and(Page::withVersionMode()->firstWhere('record_id', $page->id))->toBeNull();
 });
 
 it('it marks the draft record and current version as unpublished when the published record is deleted', function () {
@@ -34,7 +34,7 @@ it('it marks the draft record and current version as unpublished when the publis
     $page->refresh();
 
     expect($page->is_published)->toBeFalse()
-        ->and($page->currentVersion?->is_published)->toBeFalse();
+        ->and($page->currentVersionRecord?->is_published)->toBeFalse();
 });
 
 it('it removes the version number from published and draft records when version records are deleted', function () {
@@ -43,7 +43,7 @@ it('it removes the version number from published and draft records when version 
 
     expect($page->version_number)->toBe(1);
 
-    $page->currentVersion->delete();
+    $page->currentVersionRecord->delete();
     $page->refresh();
 
     expect($page->version_number)->toBeNull()

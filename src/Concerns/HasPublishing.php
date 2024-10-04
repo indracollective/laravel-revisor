@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
+use Indra\Revisor\Enums\RevisorMode;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasPublishing
@@ -58,11 +59,11 @@ trait HasPublishing
     /**
      * Get a Builder instance for the Published table
      */
-    public static function withPublishedTable(): Builder
+    public static function withPublishedMode(): Builder
     {
         $instance = new static;
 
-        return $instance->setTable($instance->getPublishedTable())->newQuery();
+        return $instance->setRevisorMode(RevisorMode::Published)->newQuery();
     }
 
     /**
@@ -113,12 +114,10 @@ trait HasPublishing
         $this->setUnpublishedAttributes();
 
         // delete the published record
-        static::withPublishedTable()
-            ->firstWhere($this->getKeyName(), $this->getKey())
-            ?->deleteQuietly();
+        $this->publishedRecord?->deleteQuietly();
 
         // save the draft record
-        $this->save();
+        $this->saveQuietly();
 
         // fire the unpublished event
         $this->fireModelEvent('unpublished');
@@ -149,7 +148,7 @@ trait HasPublishing
     public function applyStateToPublishedRecord(): HasRevisorContract
     {
         // find or make the published record
-        $published = $this->publishedRecord ?? static::make()->setTable($this->getPublishedTable());
+        $published = $this->publishedRecord ?? static::make()->setRevisorMode(RevisorMode::Published);
 
         // copy the attributes from the draft record to the published record
         $published->forceFill($this->attributes);
@@ -180,14 +179,11 @@ trait HasPublishing
      */
     public function publishedRecord(): HasOne
     {
-        if (! $this->isDraftTableRecord()) {
-            throw new Exception("The published record is only available for draft records, this is a $this->table record");
-        }
-
-        $instance = static::withPublishedTable();
+        $instance = static::withPublishedMode();
+        $localKey = $this->isVersionTableRecord() ? 'record_id' : $this->getKeyName();
 
         return $this->newHasOne(
-            $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $this->getKeyName()
+            $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $localKey
         );
     }
 
@@ -202,7 +198,7 @@ trait HasPublishing
             throw new Exception('The draft record is only available for published records');
         }
 
-        $instance = static::withDraftTable();
+        $instance = static::withDraftMode();
 
         return $this->newHasOne(
             $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $this->getKeyName()
@@ -269,6 +265,16 @@ trait HasPublishing
         return $this->getTable() === $this->getPublishedTable();
     }
 
+    public function isPublished(): bool
+    {
+        return $this->is_published;
+    }
+
+    public function isRevised(): bool
+    {
+        return $this->updated_at > $this->published_at;
+    }
+
     /**
      * Register a "publishing" model event callback with the dispatcher.
      */
@@ -299,5 +305,21 @@ trait HasPublishing
     public static function unpublished(string|Closure $callback): void
     {
         static::registerModelEvent('unpublished', $callback);
+    }
+
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('is_published', 1);
+    }
+
+    public function scopeUnpublished(Builder $query): Builder
+    {
+        return $query->where('is_published', 0);
+    }
+
+    public function scopeUnpublishedOrRevised(Builder $query): Builder
+    {
+        return $query->where('updated_at', '>', 'published_at')
+            ->orWhere('is_published', 0);
     }
 }

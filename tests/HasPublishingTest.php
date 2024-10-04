@@ -15,7 +15,7 @@ it('publishes on created only when configured to do so', function () {
     $page = Page::create(['title' => 'Home']);
     $page->refresh();
     expect($page->is_published)->toBeFalse()
-        ->and(Page::withPublishedTable()->find($page->id))->toBeNull();
+        ->and(Page::withPublishedMode()->find($page->id))->toBeNull();
 
     // global on
     config()->set('revisor.publishing.publish_on_created', true);
@@ -39,7 +39,7 @@ it('publishes on updated only when configured to do so', function () {
     $page = Page::create(['title' => 'Home']);
     $page->refresh();
     expect($page->is_published)->toBeFalse()
-        ->and(Page::withPublishedTable()->find($page->id))->toBeNull();
+        ->and(Page::withPublishedMode()->find($page->id))->toBeNull();
 
     // global on
     config()->set('revisor.publishing.publish_on_updated', true);
@@ -73,7 +73,7 @@ it('publishes and unpublishes a record when explicitly called', function () {
         ->and($page->published_at)->not()->toBeNull()
         ->and($page->publisher->id)->toBe($user->id);
 
-    $published = Page::withPublishedTable()->find($page->id);
+    $published = Page::withPublishedMode()->find($page->id);
 
     expect($published)->toBeInstanceOf(Page::class)
         ->and($published->is_published)->toBeTrue()
@@ -88,6 +88,6 @@ it('publishes and unpublishes a record when explicitly called', function () {
         ->and($page->published_at)->toBeNull()
         ->and($page->publisher)->toBeNull();
 
-    $unpublished = Page::withPublishedTable()->find($page->id);
+    $unpublished = Page::withPublishedMode()->find($page->id);
     expect($unpublished)->toBeNull();
 });

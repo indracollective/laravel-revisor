@@ -22,6 +22,7 @@ it('respects revisor.default_mode config', function () {
     config()->set('revisor.default_mode', RevisorMode::Published);
 
     $foundPage = Page::find($page->id);
+
     expect($foundPage->getTable())->toBe($page->getPublishedTable());
 });
 

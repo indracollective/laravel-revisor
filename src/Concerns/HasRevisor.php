@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
+use Indra\Revisor\Enums\RevisorMode;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasRevisor
 {
     use HasPublishing;
     use HasVersioning;
+
+    protected ?RevisorMode $revisorMode = null;
 
     public static function bootHasRevisor(): void
     {
@@ -51,11 +54,23 @@ trait HasRevisor
             static::restored(function (HasRevisorContract $model): void {
                 if ($model->isDraftTableRecord()) {
                     $model->publishedRecord?->restoreQuietly();
-                    $model->versions->restoreQuietly();
+                    $model->versionRecords->restoreQuietly();
                 }
             });
         }
     }
+
+    public function newInstance($attributes = [], $exists = false): self
+    {
+        return parent::newInstance($attributes, $exists)
+            ->setRevisorMode($this->getRevisorMode() ?? Revisor::getMode());
+    }
+
+//    public function newFromBuilder($attributes = [], $connection = null): self
+//    {
+//        return parent::newFromBuilder($attributes, $connection)
+//            ->setRevisorMode($this->getRevisorMode() ?? Revisor::getMode());
+//    }
 
     /**
      * Overrides Model::getTable to return the appropriate
@@ -64,7 +79,7 @@ trait HasRevisor
      */
     public function getTable(): string
     {
-        return $this->table ?? Revisor::getSuffixedTableNameFor($this->getBaseTable());
+        return Revisor::getSuffixedTableNameFor($this->getBaseTable(), $this->getRevisorMode());
     }
 
     /**
@@ -86,11 +101,11 @@ trait HasRevisor
     /**
      * Get a Builder instance for the Draft table
      */
-    public static function withDraftTable(): Builder
+    public static function withDraftMode(): Builder
     {
         $instance = new static;
 
-        return $instance->setTable($instance->getDraftTable())->newQuery();
+        return $instance->setRevisorMode(RevisorMode::Draft)->newQuery();
     }
 
     /**
@@ -119,6 +134,18 @@ trait HasRevisor
         }
     }
 
+    public function setRevisorMode(?RevisorMode $mode = null): static
+    {
+        $this->revisorMode = $mode;
+
+        return $this;
+    }
+
+    public function getRevisorMode(): ?RevisorMode
+    {
+        return $this->revisorMode;
+    }
+
     /**
      * Handle the deletion of a draft record
      * Cascades the deletion to the version and draft records
@@ -135,8 +162,8 @@ trait HasRevisor
             $this->publishedRecord?->delete();
 
         $force ?
-            $this->versions->each->forceDeleteQuietly() :
-            $this->versions->each->deleteQuietly();
+            $this->versionRecords->each->forceDeleteQuietly() :
+            $this->versionRecords->each->deleteQuietly();
     }
 
     /**
@@ -152,6 +179,6 @@ trait HasRevisor
 
         $this->draftRecord?->unpublish();
 
-        $this->currentVersion?->unpublish();
+        $this->currentVersionRecord?->unpublish();
     }
 }

@@ -18,13 +18,13 @@ interface HasRevisor
 
     public function getDraftTable(): string;
 
-    public static function withDraftTable(): Builder;
+    public static function withDraftMode(): Builder;
 
     public function isDraftTableRecord(): bool;
 
     public static function bootHasPublishing(): void;
 
-    public static function withPublishedTable(): Builder;
+    public static function withPublishedMode(): Builder;
 
     public function publish(): HasRevisor|bool;
 
@@ -64,7 +64,7 @@ interface HasRevisor
 
     public function initializeHasVersioning(): void;
 
-    public function recordNewVersion(): HasRevisor|bool;
+    public function saveNewVersion(): HasRevisor|bool;
 
     public function revertToVersion(HasRevisor|int $version): HasRevisor;
 
@@ -72,7 +72,7 @@ interface HasRevisor
 
     public function setVersionAsCurrent(HasRevisor|int $version): HasRevisor;
 
-    public function versions(): HasMany;
+    public function versionRecords(): HasMany;
 
     public function keepVersions(null|int|bool $keep = true): void;
 
@@ -80,21 +80,21 @@ interface HasRevisor
 
     public function prunableVersions(): HasMany;
 
-    public function currentVersion(): HasOne;
+    public function currentVersionRecord(): HasOne;
 
     public function syncCurrentVersion(): HasRevisor|bool;
 
     public function pruneVersions(): HasRevisor;
 
-    public static function withVersionTable(): Builder;
+    public static function withVersionMode(): Builder;
 
-    public function recordNewVersionOnCreated(bool $bool = true): HasRevisor;
+    public function saveNewVersionOnCreated(bool $bool = true): HasRevisor;
 
-    public function shouldRecordNewVersionOnCreated(): bool;
+    public function shouldSaveNewVersionOnCreated(): bool;
 
-    public function recordNewVersionOnUpdated(bool $bool = true): HasRevisor;
+    public function saveNewVersionOnUpdated(bool $bool = true): HasRevisor;
 
-    public function shouldRecordNewVersionOnUpdated(): bool;
+    public function shouldSaveNewVersionOnUpdated(): bool;
 
     public function getVersionTable(): string;
 

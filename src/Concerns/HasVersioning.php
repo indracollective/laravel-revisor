@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
+use Indra\Revisor\Enums\RevisorMode;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasVersioning
@@ -23,13 +24,13 @@ trait HasVersioning
      * Whether to record a new version when a new instance of the model is created
      * Overrides the global config if true or false
      */
-    protected ?bool $recordNewVersionOnCreated = null;
+    protected ?bool $saveNewVersionOnCreated = null;
 
     /**
      * Whether to record a new version when a new instance of the model is updated
      * Overrides the global config if true or false
      */
-    protected ?bool $recordNewVersionOnUpdated = null;
+    protected ?bool $saveNewVersionOnUpdated = null;
 
     /**
      * Register model event listeners
@@ -41,8 +42,8 @@ trait HasVersioning
                 return;
             }
 
-            if ($model->shouldRecordNewVersionOnCreated()) {
-                $model->recordNewVersion();
+            if ($model->shouldSaveNewVersionOnCreated()) {
+                $model->saveNewVersion();
             }
         });
 
@@ -51,8 +52,8 @@ trait HasVersioning
                 return;
             }
 
-            if ($model->shouldRecordNewVersionOnUpdated()) {
-                $model->recordNewVersion();
+            if ($model->shouldSaveNewVersionOnUpdated()) {
+                $model->saveNewVersion();
             } else {
                 $model->syncCurrentVersion();
             }
@@ -83,7 +84,7 @@ trait HasVersioning
      * Updates the current base record to have the new version_number
      * Prunes old versions
      */
-    public function recordNewVersion(): HasRevisorContract|bool
+    public function saveNewVersion(): HasRevisorContract|bool
     {
         if ($this->fireModelEvent('savingNewVersion') === false) {
             return false;
@@ -93,11 +94,11 @@ trait HasVersioning
             ->except(['id'])
             ->merge([
                 'record_id' => $this->id,
-                'version_number' => ($this->versions()->max('version_number') ?? 0) + 1,
+                'version_number' => ($this->versionRecords()->max('version_number') ?? 0) + 1,
             ])
             ->toArray();
 
-        $version = static::make()->setTable($this->getVersionTable())->forceFill($attributes);
+        $version = static::make()->setRevisorMode(RevisorMode::Version)->forceFill($attributes);
         $this->setVersionAsCurrent($version);
 
         $this->pruneVersions();
@@ -112,7 +113,7 @@ trait HasVersioning
      */
     public function revertToVersion(HasRevisorContract|int $version): HasRevisorContract
     {
-        $version = is_int($version) ? $this->versions()->find($version) : $version;
+        $version = is_int($version) ? $this->versionRecords()->find($version) : $version;
 
         $this->fireModelEvent('revertingToVersion', $version);
 
@@ -130,18 +131,18 @@ trait HasVersioning
 
     public function revertToVersionNumber(int $versionNumber): HasRevisorContract
     {
-        $version = $this->versions()->firstWhere('version_number', $versionNumber);
+        $version = $this->versionRecords()->firstWhere('version_number', $versionNumber);
 
         return $this->revertToVersion($version);
     }
 
     public function setVersionAsCurrent(HasRevisorContract|int $version): HasRevisorContract
     {
-        $version = is_int($version) ? $this->versions()->find($version) : $version;
+        $version = is_int($version) ? $this->versionRecords()->find($version) : $version;
 
         // update all other versions to not be current
         // and set this version as current and save it
-        $this->versions()->where('is_current', 1)->update(['is_current' => 0]);
+        $this->versionRecords()->where('is_current', 1)->update(['is_current' => 0]);
         $version->forceFill(['is_current' => 1])->saveQuietly();
 
         // update the current draft record to have the new version_number
@@ -154,9 +155,9 @@ trait HasVersioning
         return $this;
     }
 
-    public function versions(): HasMany
+    public function versionRecords(): HasMany
     {
-        $instance = $this->newRelatedInstance(static::class)->setTable($this->getVersionTable());
+        $instance = $this->newRelatedInstance(static::class)->setRevisorMode(RevisorMode::Version);
 
         return $this->newHasMany(
             $instance->newQuery(), $this, $this->getVersionTable().'.record_id', $this->getKeyName()
@@ -181,9 +182,9 @@ trait HasVersioning
     {
         $keep = $this->shouldKeepVersions();
 
-        // int = prune the oldest, keeping n revisions
+        // int = prune the oldest, keeping n versions
         if (is_int($keep)) {
-            return $this->versions()->where('is_current', 0)
+            return $this->versionRecords()->where('is_current', 0)
                 ->orderBy('version_number')
                 ->skip($keep)
                 ->take(PHP_INT_MAX);
@@ -191,17 +192,16 @@ trait HasVersioning
 
         // false = prune all revisions
         if ($keep === false) {
-            return $this->versions();
+            return $this->versionRecords();
         }
 
         // true = avoid pruning entirely by returning no prunable versions
-        return $this->versions()->whereRaw('1 = 0');
+        return $this->versionRecords()->whereRaw('1 = 0');
     }
 
-    public function currentVersion(): HasOne
+    public function currentVersionRecord(): HasOne
     {
-        $instance = $this->newRelatedInstance(static::class)
-            ->setTable(Revisor::getVersionTableFor($this->getBaseTable()));
+        $instance = $this->newRelatedInstance(static::class)->setRevisorMode(RevisorMode::Version);
 
         return $this->newHasOne(
             $instance->newQuery(), $this, $instance->getTable().'.record_id', $this->getKeyName()
@@ -210,11 +210,11 @@ trait HasVersioning
 
     public function syncCurrentVersion(): HasRevisorContract|bool
     {
-        if (! $this->currentVersion) {
-            return $this->recordNewVersion();
+        if (! $this->currentVersionRecord) {
+            return $this->saveNewVersion();
         }
 
-        $this->currentVersion->updateQuietly($this->attributes);
+        $this->currentVersionRecord->updateQuietly($this->attributes);
 
         return $this;
     }
@@ -237,39 +237,39 @@ trait HasVersioning
     /**
      * Get a Builder instance for the Version table
      */
-    public static function withVersionTable(): Builder
+    public static function withVersionMode(): Builder
     {
         $instance = new static;
 
-        return $instance->setTable($instance->getVersionTable())->newQuery();
+        return $instance->setRevisorMode(RevisorMode::Version)->newQuery();
     }
 
-    public function recordNewVersionOnCreated(bool $bool = true): HasRevisorContract
+    public function saveNewVersionOnCreated(bool $bool = true): HasRevisorContract
     {
-        $this->recordNewVersionOnCreated = $bool;
+        $this->saveNewVersionOnCreated = $bool;
 
         return $this;
     }
 
-    public function shouldRecordNewVersionOnCreated(): bool
+    public function shouldSaveNewVersionOnCreated(): bool
     {
-        return is_null($this->recordNewVersionOnCreated) ?
-            config('revisor.versioning.record_new_version_on_created') :
-            $this->recordNewVersionOnCreated;
+        return is_null($this->saveNewVersionOnCreated) ?
+            config('revisor.versioning.save_new_version_on_created') :
+            $this->saveNewVersionOnCreated;
     }
 
-    public function recordNewVersionOnUpdated(bool $bool = true): HasRevisorContract
+    public function saveNewVersionOnUpdated(bool $bool = true): HasRevisorContract
     {
-        $this->recordNewVersionOnUpdated = $bool;
+        $this->saveNewVersionOnUpdated = $bool;
 
         return $this;
     }
 
-    public function shouldRecordNewVersionOnUpdated(): bool
+    public function shouldSaveNewVersionOnUpdated(): bool
     {
-        return is_null($this->recordNewVersionOnUpdated) ?
-            config('revisor.versioning.record_new_version_on_updated') :
-            $this->recordNewVersionOnUpdated;
+        return is_null($this->saveNewVersionOnUpdated) ?
+            config('revisor.versioning.save_new_version_on_updated') :
+            $this->saveNewVersionOnUpdated;
     }
 
     public function getVersionTable(): string

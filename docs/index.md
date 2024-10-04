@@ -75,9 +75,9 @@ return [
     // The publishing config is used to determine the default versioning behaviour,
     'versioning' => [
         // If true, new version records will be automatically created when drafts are created
-        'record_new_version_on_created' => true,
+        'save_new_version_on_created' => true,
         // If true, new version records will be automatically created when drafts are updated
-        'record_new_version_on_updated' => true,
+        'save_new_version_on_updated' => true,
         // The maximum number of versions to keep
         // if set to true, version records will not be pruned
         'keep_versions' => 10,
