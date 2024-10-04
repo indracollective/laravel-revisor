@@ -66,11 +66,11 @@ trait HasRevisor
             ->setRevisorMode($this->getRevisorMode() ?? Revisor::getMode());
     }
 
-//    public function newFromBuilder($attributes = [], $connection = null): self
-//    {
-//        return parent::newFromBuilder($attributes, $connection)
-//            ->setRevisorMode($this->getRevisorMode() ?? Revisor::getMode());
-//    }
+    //    public function newFromBuilder($attributes = [], $connection = null): self
+    //    {
+    //        return parent::newFromBuilder($attributes, $connection)
+    //            ->setRevisorMode($this->getRevisorMode() ?? Revisor::getMode());
+    //    }
 
     /**
      * Overrides Model::getTable to return the appropriate
