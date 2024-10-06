@@ -234,6 +234,17 @@ trait HasPublishing
     }
 
     /**
+     * Set whether to publish the record when an instance of the model is created or updated
+     */
+    public function publishOnSaved(bool $bool = true): HasRevisorContract
+    {
+        $this->publishOnCreated = $bool;
+        $this->publishOnUpdated = $bool;
+
+        return $this;
+    }
+
+    /**
      * Get whether to publish the record when a new instance of the model is created
      */
     public function shouldPublishOnCreated(): bool

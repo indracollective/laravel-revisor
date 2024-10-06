@@ -66,6 +66,14 @@ trait HasVersioning
 
             $model->is_current = true;
         });
+
+        static::published(function (HasRevisorContract $model) {
+            $model->syncCurrentVersion();
+        });
+
+        static::unpublished(function (HasRevisorContract $model) {
+            $model->syncCurrentVersion();
+        });
     }
 
     /**
@@ -270,6 +278,14 @@ trait HasVersioning
         return is_null($this->saveNewVersionOnUpdated) ?
             config('revisor.versioning.save_new_version_on_updated') :
             $this->saveNewVersionOnUpdated;
+    }
+
+    public function saveNewVersionOnSaved(bool $bool = true): HasRevisorContract
+    {
+        $this->saveNewVersionOnCreated = $bool;
+        $this->saveNewVersionOnUpdated = $bool;
+
+        return $this;
     }
 
     public function getVersionTable(): string

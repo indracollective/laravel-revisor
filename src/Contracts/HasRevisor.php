@@ -94,6 +94,8 @@ interface HasRevisor
 
     public function saveNewVersionOnUpdated(bool $bool = true): HasRevisor;
 
+    public function saveNewVersionOnSaved(bool $bool = true): HasRevisor;
+
     public function shouldSaveNewVersionOnUpdated(): bool;
 
     public function getVersionTable(): string;
