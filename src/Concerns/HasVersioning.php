@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Indra\Revisor\Concerns;
 
 use Closure;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -142,11 +143,28 @@ trait HasVersioning
         return $this->refresh();
     }
 
-    public function revertToVersionNumber(int $versionNumber): HasRevisorContract
+    public function revertToVersionNumber(int $versionNumber): static
     {
         $version = $this->versionRecords()->firstWhere('version_number', $versionNumber);
 
         return $this->revertToVersion($version);
+    }
+
+    /**
+     * Restore the Draft record to the state of this Version record
+     *
+     * @throws Exception if this record is not a Version record
+     */
+    public function restoreDraftToThisVersion(): static
+    {
+        if (! $this->isVersionTableRecord()) {
+            $mode = $this->getRevisorMode();
+            throw new \Exception("Can not restore this record, it is a $mode record. Only Version records can be restored.");
+        }
+
+        $this->draftRecord->revertToVersion($this);
+
+        return $this;
     }
 
     public function setVersionAsCurrent(HasRevisorContract|int $version): HasRevisorContract

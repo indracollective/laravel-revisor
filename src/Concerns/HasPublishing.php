@@ -180,6 +180,10 @@ trait HasPublishing
      */
     public function publishedRecord(): HasOne
     {
+        if ($this->isPublishedTableRecord()) {
+            throw new Exception('The published record HasOne relationship is only available to Draft and Version records');
+        }
+
         $instance = (new static)->withPublishedRecords();
         $localKey = $this->isVersionTableRecord() ? 'record_id' : $this->getKeyName();
 
@@ -195,14 +199,15 @@ trait HasPublishing
      */
     public function draftRecord(): HasOne
     {
-        if (! $this->isPublishedTableRecord()) {
-            throw new Exception('The draft record is only available for published records');
+        if ($this->isDraftTableRecord()) {
+            throw new Exception('The draft record HasOne relationship is only available to Published and Version records');
         }
 
         $instance = (new static)->withDraftRecords();
+        $localKey = $this->isVersionTableRecord() ? 'record_id' : $this->getKeyName();
 
         return $this->newHasOne(
-            $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $this->getKeyName()
+            $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $localKey
         );
     }
 
