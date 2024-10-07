@@ -25,32 +25,32 @@ class Revisor
         // create the draft table
         Schema::create(static::getDraftTableFor($baseTableName), function (Blueprint $table) use ($callback) {
             $callback($table, RevisorMode::Draft);
-            $table->nullableMorphs('publisher');
-            $table->timestamp('published_at')->nullable();
-            $table->boolean('is_current')->default(0);
-            $table->boolean('is_published')->default(0);
-            $table->unsignedInteger('version_number')->unsigned()->nullable()->index();
+            $table->boolean(config('revisor.publishing.table_columns.is_published'))->default(0);
+            $table->timestamp(config('revisor.publishing.table_columns.published_at'))->nullable();
+            $table->nullableMorphs(config('revisor.publishing.table_columns.publisher'));
+            $table->boolean(config('revisor.versioning.table_columns.is_current'))->default(0);
+            $table->unsignedInteger(config('revisor.versioning.table_columns.version_number'))->unsigned()->nullable()->index();
         });
 
         // create the versions table
         Schema::create(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback, $baseTableName) {
             $callback($table, RevisorMode::Version);
-            $table->nullableMorphs('publisher');
-            $table->timestamp('published_at')->nullable();
-            $table->boolean('is_current')->default(0)->index();
-            $table->boolean('is_published')->default(0)->index();
-            $table->integer('version_number')->unsigned()->nullable()->index();
-            $table->foreignId('record_id')->constrained(static::getDraftTableFor($baseTableName))->cascadeOnDelete();
+            $table->boolean(config('revisor.publishing.table_columns.is_published'))->default(0)->index();
+            $table->timestamp(config('revisor.publishing.table_columns.published_at'))->nullable();
+            $table->nullableMorphs(config('revisor.publishing.table_columns.publisher'));
+            $table->boolean(config('revisor.versioning.table_columns.is_current'))->default(0)->index();
+            $table->unsignedInteger(config('revisor.versioning.table_columns.version_number'))->unsigned()->nullable()->index();
+            $table->foreignId(config('revisor.versioning.table_columns.record_id'))->constrained(static::getDraftTableFor($baseTableName))->cascadeOnDelete();
         });
 
         // create the published table
         Schema::create(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
             $callback($table, RevisorMode::Published);
-            $table->nullableMorphs('publisher');
-            $table->timestamp('published_at')->nullable();
-            $table->boolean('is_current')->default(0);
-            $table->boolean('is_published')->default(0);
-            $table->integer('version_number')->unsigned()->nullable()->index();
+            $table->boolean(config('revisor.publishing.table_columns.is_published'))->default(0);
+            $table->timestamp(config('revisor.publishing.table_columns.published_at'))->nullable();
+            $table->nullableMorphs(config('revisor.publishing.table_columns.publisher'));
+            $table->boolean(config('revisor.versioning.table_columns.is_current'))->default(0);
+            $table->integer(config('revisor.versioning.table_columns.version_number'))->unsigned()->nullable()->index();
         });
     }
 

@@ -91,3 +91,26 @@ it('publishes and unpublishes a record when explicitly called', function () {
     $unpublished = Page::withPublishedRecords()->find($page->id);
     expect($unpublished)->toBeNull();
 });
+
+it('does not sync publishing metadata to when saving a new version', function () {
+    $user = User::create(['email' => 'user@test.com']);
+    $this->actingAs($user);
+
+    $page = Page::create(['title' => 'Home']);
+
+    // publish a record
+
+    $page->publish();
+
+    // get the version record and ensure it has the correct metadata
+    $version = $page->currentVersionRecord;
+
+    expect($version->is_published)->toBeTrue()
+        ->and($version->published_at)->not()->toBeNull()
+        ->and($version->publisher->id)->toBe($user->id);
+
+    $page->saveNewVersion();
+
+    expect($page->versionRecords()->firstWhere('is_current', 1)->is_published)->toBeFalse()
+        ->and($page->versionRecords()->firstWhere('is_current', 0)->is_published)->toBeTrue();
+});

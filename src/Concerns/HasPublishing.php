@@ -287,6 +287,11 @@ trait HasPublishing
         return $this->updated_at > $this->published_at;
     }
 
+    public function isUnpublishedOrRevised(): bool
+    {
+        return $this->updated_at > $this->published_at || $this->is_published === false;
+    }
+
     /**
      * Register a "publishing" model event callback with the dispatcher.
      */

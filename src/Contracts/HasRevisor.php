@@ -77,7 +77,7 @@ interface HasRevisor
 
     public function currentVersionRecord(): HasOne;
 
-    public function syncCurrentVersion(): HasRevisor|bool;
+    public function syncToCurrentVersionRecord(): HasRevisor|bool;
 
     public function pruneVersions(): HasRevisor;
 

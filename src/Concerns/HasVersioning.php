@@ -55,7 +55,7 @@ trait HasVersioning
             if ($model->shouldSaveNewVersionOnUpdated()) {
                 $model->saveNewVersion();
             } else {
-                $model->syncCurrentVersion();
+                $model->syncToCurrentVersionRecord();
             }
         });
 
@@ -68,11 +68,11 @@ trait HasVersioning
         });
 
         static::published(function (HasRevisorContract $model) {
-            $model->syncCurrentVersion();
+            $model->syncToCurrentVersionRecord();
         });
 
         static::unpublished(function (HasRevisorContract $model) {
-            $model->syncCurrentVersion();
+            $model->syncToCurrentVersionRecord();
         });
     }
 
@@ -87,10 +87,10 @@ trait HasVersioning
     }
 
     /**
-     * Creates a new record in the version table
-     * Ensures it is_current and other versions are not
-     * Updates the current base record to have the new version_number
-     * Prunes old versions
+     * Create a new version of this record in the version table
+     * Mark the new version as the current version and not published
+     * Update this record to have the version number of the new version
+     * Prune old versions if necessary
      */
     public function saveNewVersion(): HasRevisorContract|bool
     {
@@ -98,8 +98,13 @@ trait HasVersioning
             return false;
         }
 
+        $exceptAttributes = collect(config('revisor.publishing.table_columns'))
+            ->values()
+            ->add('id')
+            ->toArray();
+
         $attributes = collect($this->attributes)
-            ->except(['id'])
+            ->except($exceptAttributes)
             ->merge([
                 'record_id' => $this->id,
                 'version_number' => ($this->versionRecords()->max('version_number') ?? 0) + 1,
@@ -209,20 +214,36 @@ trait HasVersioning
 
     public function currentVersionRecord(): HasOne
     {
-        $instance = $this->newRelatedInstance(static::class)->setRevisorMode(RevisorMode::Version);
+        $query = $this->newRelatedInstance(static::class)->withVersionRecords();
 
         return $this->newHasOne(
-            $instance->newQuery(), $this, $instance->getTable().'.record_id', $this->getKeyName()
+            $query, $this, $query->getModel()->getTable().'.record_id', $this->getKeyName()
         )->where('is_current', 1);
     }
 
-    public function syncCurrentVersion(): HasRevisorContract|bool
+    /**
+     * Sync this record's attributes to the current version record
+     * Create a new version record if there is no current version
+     */
+    public function syncToCurrentVersionRecord(): HasRevisorContract|bool
     {
         if (! $this->currentVersionRecord) {
             return $this->saveNewVersion();
         }
 
-        $this->currentVersionRecord->updateQuietly($this->attributes);
+        $attributes = collect($this->attributes)
+            ->except([$this->getKeyName(), 'version_number'])
+            ->toArray();
+
+        $this->currentVersionRecord->forceFill($attributes)->saveQuietly();
+
+        // if this current version is published, ensure no
+        // other versions are marked as published
+        if ($this->currentVersionRecord->is_published) {
+            $this->versionRecords()
+                ->whereNot('id', $this->currentVersionRecord->id)
+                ->update(['is_published' => 0]);
+        }
 
         return $this;
     }
