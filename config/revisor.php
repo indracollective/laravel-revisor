@@ -27,7 +27,7 @@ return [
         'table_columns' => [
             'is_published' => 'is_published',
             'published_at' => 'published_at',
-            'publisher' => 'publisher'
+            'publisher' => 'publisher',
         ],
     ],
 
