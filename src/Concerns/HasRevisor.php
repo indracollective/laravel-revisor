@@ -99,6 +99,7 @@ trait HasRevisor
     {
         $query->getModel()->setRevisorMode(RevisorMode::Draft);
         $query->getQuery()->from = $query->getModel()->getTable();
+
         return $query;
     }
 

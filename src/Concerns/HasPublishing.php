@@ -63,6 +63,7 @@ trait HasPublishing
     {
         $query->getModel()->setRevisorMode(RevisorMode::Published);
         $query->getQuery()->from = $query->getModel()->getTable();
+
         return $query;
     }
 
@@ -186,7 +187,6 @@ trait HasPublishing
             $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $localKey
         );
     }
-
 
     /**
      * Get the draft record for this model

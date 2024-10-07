@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Indra\Revisor\Contracts;
 
 use Closure;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;

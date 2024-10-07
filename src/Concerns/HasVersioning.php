@@ -249,6 +249,7 @@ trait HasVersioning
     {
         $query->getModel()->setRevisorMode(RevisorMode::Version);
         $query->getQuery()->from = $query->getModel()->getTable();
+
         return $query;
     }
 
