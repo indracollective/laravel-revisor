@@ -59,11 +59,11 @@ trait HasPublishing
     /**
      * Get a Builder instance for the Published table
      */
-    public static function withPublishedMode(): Builder
+    public function scopeWithPublishedRecords(Builder $query): Builder
     {
-        $instance = new static;
-
-        return $instance->setRevisorMode(RevisorMode::Published)->newQuery();
+        $query->getModel()->setRevisorMode(RevisorMode::Published);
+        $query->getQuery()->from = $query->getModel()->getTable();
+        return $query;
     }
 
     /**
@@ -179,13 +179,14 @@ trait HasPublishing
      */
     public function publishedRecord(): HasOne
     {
-        $instance = static::withPublishedMode();
+        $instance = (new static)->withPublishedRecords();
         $localKey = $this->isVersionTableRecord() ? 'record_id' : $this->getKeyName();
 
         return $this->newHasOne(
             $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $localKey
         );
     }
+
 
     /**
      * Get the draft record for this model
@@ -198,7 +199,7 @@ trait HasPublishing
             throw new Exception('The draft record is only available for published records');
         }
 
-        $instance = static::withDraftMode();
+        $instance = (new static)->withDraftRecords();
 
         return $this->newHasOne(
             $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $this->getKeyName()

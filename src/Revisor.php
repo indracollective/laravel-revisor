@@ -177,7 +177,7 @@ class Revisor
     /**
      * Execute the given callback with the Version RevisorMode
      */
-    public function withPublishedMode(callable $callback): mixed
+    public function withPublishedRecords(callable $callback): mixed
     {
         return $this->withMode(RevisorMode::Published, $callback);
     }
@@ -185,7 +185,7 @@ class Revisor
     /**
      * Execute the given callback with the Version RevisorMode
      */
-    public function withVersionMode(callable $callback): mixed
+    public function withVersionRecords(callable $callback): mixed
     {
         return $this->withMode(RevisorMode::Version, $callback);
     }
@@ -193,7 +193,7 @@ class Revisor
     /**
      * Execute the given callback with the Draft RevisorMode
      */
-    public function withDraftMode(callable $callback): mixed
+    public function withDraftRecords(callable $callback): mixed
     {
         return $this->withMode(RevisorMode::Draft, $callback);
     }

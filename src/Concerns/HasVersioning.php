@@ -245,11 +245,11 @@ trait HasVersioning
     /**
      * Get a Builder instance for the Version table
      */
-    public static function withVersionMode(): Builder
+    public function scopeWithVersionRecords(Builder $query): Builder
     {
-        $instance = new static;
-
-        return $instance->setRevisorMode(RevisorMode::Version)->newQuery();
+        $query->getModel()->setRevisorMode(RevisorMode::Version);
+        $query->getQuery()->from = $query->getModel()->getTable();
+        return $query;
     }
 
     public function saveNewVersionOnCreated(bool $bool = true): HasRevisorContract

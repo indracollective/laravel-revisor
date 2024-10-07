@@ -34,13 +34,13 @@ it('respects explicit modes set on the RevisorInstance', function () {
     $foundPage = Page::find($page->id);
     expect($foundPage->getTable())->toBe($page->getDraftTable());
 
-    $foundPage = Revisor::withPublishedMode(fn () => Page::find($page->id));
+    $foundPage = Revisor::withPublishedRecords(fn () => Page::find($page->id));
     expect($foundPage->getTable())->toBe($page->getPublishedTable());
 
     Revisor::setMode(RevisorMode::Published);
     $foundPage = Page::first();
     expect($foundPage->getTable())->toBe($page->getPublishedTable());
 
-    $foundPage = Revisor::withDraftMode(fn () => Page::first());
+    $foundPage = Revisor::withDraftRecords(fn () => Page::first());
     expect($foundPage->getTable())->toBe($page->getDraftTable());
 });

@@ -18,13 +18,9 @@ interface HasRevisor
 
     public function getDraftTable(): string;
 
-    public static function withDraftMode(): Builder;
-
     public function isDraftTableRecord(): bool;
 
     public static function bootHasPublishing(): void;
-
-    public static function withPublishedMode(): Builder;
 
     public function publish(): HasRevisor|bool;
 
@@ -85,8 +81,6 @@ interface HasRevisor
     public function syncCurrentVersion(): HasRevisor|bool;
 
     public function pruneVersions(): HasRevisor;
-
-    public static function withVersionMode(): Builder;
 
     public function saveNewVersionOnCreated(bool $bool = true): HasRevisor;
 

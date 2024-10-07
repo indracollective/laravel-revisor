@@ -46,8 +46,8 @@ Revisor::withMode(RevisorMode::Draft, function() {
 
 // If you you need even more isolation, you can use withTable on your Model
 
-Page::withDraftMode()->all(); // query builder for draft records
-Page::withPublishedMode()->all() // query builder for published records
+Page::withDraftRecords()->all(); // query builder for draft records
+Page::withPublishedRecords()->all() // query builder for published records
 Page::withVersionsTable()->all() // query builder for versions records
 ```
 

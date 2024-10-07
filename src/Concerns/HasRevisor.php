@@ -95,11 +95,11 @@ trait HasRevisor
     /**
      * Get a Builder instance for the Draft table
      */
-    public static function withDraftMode(): Builder
+    public function scopeWithDraftRecords(Builder $query): Builder
     {
-        $instance = new static;
-
-        return $instance->setRevisorMode(RevisorMode::Draft)->newQuery();
+        $query->getModel()->setRevisorMode(RevisorMode::Draft);
+        $query->getQuery()->from = $query->getModel()->getTable();
+        return $query;
     }
 
     /**

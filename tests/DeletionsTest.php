@@ -20,8 +20,8 @@ it('cascades deletions of draft records to the version and published records', f
 
     $page->delete();
 
-    expect(Page::withPublishedMode()->find($page->id))->toBeNull()
-        ->and(Page::withVersionMode()->firstWhere('record_id', $page->id))->toBeNull();
+    expect(Page::withPublishedRecords()->find($page->id))->toBeNull()
+        ->and(Page::withVersionRecords()->firstWhere('record_id', $page->id))->toBeNull();
 });
 
 it('it marks the draft record and current version as unpublished when the published record is deleted', function () {
