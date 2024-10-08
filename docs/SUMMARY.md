@@ -8,7 +8,6 @@
 
 ## Usage
 
-* [Setting up your Migrations](usage/setting-up-your-migrations.md)
-* [Setting up your Models](usage/setting-up-your-models.md)
+* [Setup Migrations & Models](usage/setting-up-your-migrations.md)
 * [Modes & Dynamic Tables](usage/modes-and-dynamic-tables.md)
 * [Page](usage/page.md)
