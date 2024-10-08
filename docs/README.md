@@ -10,6 +10,6 @@ Laravel Revisor aims to provide the maximum power and flexibility possible in ve
 
 ✅ Easy context management for setting the appropriate reading/writing "mode" at all levels of operation - global config, middleware, mode isolation callbacks and query builder modifiers.
 
-✅ Clean, flexible API for drafting, publishing and version management
+✅ Simple and intuitive API for drafting, publishing and versioning records
 
 ✅ High configurability and excellent documentation
