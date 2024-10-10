@@ -34,7 +34,8 @@ export default defineConfig({
                         items: [
                             {text: "Preparing your Models", link: "/preparing-your-models"},
                             {text: "Modes & Middleware", link: "/modes-and-middleware"},
-                            {text: "Interacting with Records", link: "/interacting-with-records"},
+                            {text: "Publishing", link: "/publishing"},
+                            {text: "Versioning", link: "/versioning"}
                         ],
                     },
                 ],

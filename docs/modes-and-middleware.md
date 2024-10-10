@@ -23,9 +23,9 @@ By default, Revisor will use the `RevisorMode::Published` mode. This is recommen
 unintentionally exposing draft records.
 
 ```php
-    // this will query the pages_published table
-    
-    $page = Page::first(); 
+// this will query the pages_published table
+
+$page = Page::first(); 
 ```
 
 ### 2. Globally on the Revisor Facade
@@ -33,15 +33,15 @@ unintentionally exposing draft records.
 Setting the mode globally via the `Revisor` facade will override the global default set in the config file.
 
 ```php
-    use Indra\Revisor\Facades\Revisor;
-    
-    // Global mode is set to `RevisorMode::Published`
-    
-    Revisor::setMode(RevisorMode::Draft);
-    
-    // this will query the pages_drafts table
-    
-    $page = Page::first();
+use Indra\Revisor\Facades\Revisor;
+
+// Global mode is set to `RevisorMode::Published`
+
+Revisor::setMode(RevisorMode::Draft);
+
+// this will query the pages_drafts table
+
+$page = Page::first();
 ```
 
 ### 3. Locally via Closures
@@ -50,16 +50,16 @@ To override both the above Global modes inside a Closure, use the `withPublished
 `withVersionRecords` method on the `Revisor` facade.
 
 ```php
-    use Indra\Revisor\Facades\Revisor;
+use Indra\Revisor\Facades\Revisor;
+
+// Global mode is set to `RevisorMode::Published`
+
+Revisor::withDraftRecords(function () {
     
-    // Global mode is set to `RevisorMode::Published`
+    // this will query the pages_drafts table
     
-    Revisor::withDraftRecords(function () {
-        
-        // this will query the pages_drafts table
-        
-        $page = Page::first(); 
-    });
+    $page = Page::first(); 
+});
 ```
 
 ::: tip
@@ -74,13 +74,13 @@ Builder instance. This can be achieved by using the Local Query Scope methods `w
 `withPublishedRecords` or `withVersionRecords` on your Model or Query Builder.
 
 ```php
-    // Global mode is set to `RevisorMode::Published`
-    
-    // this will create and retrieve a draft record
-    
-    Page::withDraftRecords()->create([...]);
-    
-    $page = Page::withDraftRecords()->first(); 
+// Global mode is set to `RevisorMode::Published`
+
+// this will create and retrieve a draft record
+
+Page::withDraftRecords()->create([...]);
+
+$page = Page::withDraftRecords()->first(); 
 ```
 
 ## Middleware
@@ -92,12 +92,12 @@ Revisor provides three Middlewares to help you set the RevisorMode on specific r
 Useful for routes that should primarily be used for editing Draft records
 
 ```php
-    use Illuminate\Support\Facades\Route;
-    use Indra\Revisor\Middleware\DraftMiddleware;
-    
-    Route::group('/admin', function () {
-        ...
-    })->middleware(DraftMiddleware::class);
+use Illuminate\Support\Facades\Route;
+use Indra\Revisor\Middleware\DraftMiddleware;
+
+Route::group('/admin', function () {
+    ...
+})->middleware(DraftMiddleware::class);
 ```
 
 ### DraftableMiddleware

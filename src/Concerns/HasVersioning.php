@@ -195,6 +195,15 @@ trait HasVersioning
         );
     }
 
+    public function currentVersionRecord(): HasOne
+    {
+        $query = $this->newRelatedInstance(static::class)->withVersionRecords();
+
+        return $this->newHasOne(
+            $query, $this, $query->getModel()->getTable().'.record_id', $this->getKeyName()
+        )->where('is_current', 1);
+    }
+
     public function keepVersions(null|int|bool $keep = true): void
     {
         $this->keepVersions = $keep;
@@ -228,15 +237,6 @@ trait HasVersioning
 
         // true = avoid pruning entirely by returning no prunable versions
         return $this->versionRecords()->whereRaw('1 = 0');
-    }
-
-    public function currentVersionRecord(): HasOne
-    {
-        $query = $this->newRelatedInstance(static::class)->withVersionRecords();
-
-        return $this->newHasOne(
-            $query, $this, $query->getModel()->getTable().'.record_id', $this->getKeyName()
-        )->where('is_current', 1);
     }
 
     /**

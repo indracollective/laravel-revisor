@@ -16,9 +16,9 @@ hero:
 
 features:
   - title: Seamless Database Design
-    details: Separate, complete database tables for Draft, Published and Version history records per Eloquent Model, reducing exposure to the added complexity of contextual records
+    details: Separate, complete database tables for Draft, Published and Version history records per Eloquent Model, reducing exposure to the added complexity of context-dependent records
   - title: Intuitive API
     details: Super simple, feature complete API for Publishing and Versioning records, including Version rollbacks, pruning and more.
   - title:  Flexible Context Management
-    details: Easily switch between Draft, Published and Version contexts at any level - Global Config, Route Middleware, Query Scopes and context isolating Closures.
+    details: Easily switch between Draft, Published and Version contexts at any level including Global Config, Route Middleware, Query Scopes and context-isolating Closures.
 ---
