@@ -8,7 +8,7 @@ the [HasPublishing Trait](https://github.com/indracollective/laravel-revisor/blo
 if you'd like to dig deeper.
 
 ::: info NOTE
-All examples below are in the context of `RevisorMode::Draft`, and a Revisor-enabled `Page` Model
+All examples below are in the context of `RevisorContext::Draft`, and a Revisor-enabled `Page` Model
 :::
 
 ## Publish a Record

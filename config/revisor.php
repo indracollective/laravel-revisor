@@ -1,6 +1,6 @@
 <?php
 
-use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Enums\RevisorContext;
 
 return [
     // The table suffixes are used to produce 3 tables for each of your Revisor enabled Models
@@ -8,15 +8,15 @@ return [
     // will produce the following tables when migrations are run:
     // pages_drafts, pages_versions, pages_published
     'table_suffixes' => [
-        RevisorMode::Draft->value => '_drafts',
-        RevisorMode::Version->value => '_versions',
-        RevisorMode::Published->value => '_published',
+        RevisorContext::Draft->value => '_drafts',
+        RevisorContext::Version->value => '_versions',
+        RevisorContext::Published->value => '_published',
     ],
 
     // The default mode determines which of your Revisor enabled Model's tables will read/written to by default
-    // The RevisorMode enum is used to define the possible values for this
+    // The RevisorContext enum is used to define the possible values for this
     // The options are `Draft`, `Version` and `Published`
-    'default_mode' => RevisorMode::Published,
+    'default_context' => RevisorContext::Published,
 
     // Publishing configuration
     'publishing' => [

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\RevisorServiceProvider;
 use Orchestra\Testbench\Attributes\WithMigration;
@@ -34,7 +34,7 @@ class TestCase extends Orchestra
     public function getEnvironmentSetUp($app): void
     {
         config()->set('database.default', 'testing');
-        config()->set('revisor.default_mode', RevisorMode::Draft);
+        config()->set('revisor.default_context', RevisorContext::Draft);
         config()->set('app.key', Str::random(32));
         $this->setUpDatabase();
     }

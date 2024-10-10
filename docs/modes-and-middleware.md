@@ -1,25 +1,25 @@
 # Modes & Middleware
 
-## RevisorModes
+## RevisorContexts
 
 Each of your Revisor-enabled Models have 3 distinct database tables ie. a Pages model would have
 `pages_drafts`, `pages_published` and `pages_versions` tables.
 
-**Which of these tables is read/written to by Laravel depends on which `RevisorMode` is currently active.**
+**Which of these tables is read/written to by Laravel depends on which `RevisorContext` is currently active.**
 
-There are 3 modes available on the `RevisorMode` enum which correspond to the 3 tables. They are
+There are 3 modes available on the `RevisorContext` enum which correspond to the 3 tables. They are
 
-- `RevisorMode::Draft`
-- `RevisorMode::Published`
-- `RevisorMode::Version`
+- `RevisorContext::Draft`
+- `RevisorContext::Published`
+- `RevisorContext::Version`
 
-## Setting the RevisorMode
+## Setting the RevisorContext
 
-There are multiple levels at which you can set the active `RevisorMode`
+There are multiple levels at which you can set the active `RevisorContext`
 
 ### 1. Globally, via the config file
 
-By default, Revisor will use the `RevisorMode::Published` mode. This is recommended for most use cases, to avoid
+By default, Revisor will use the `RevisorContext::Published` mode. This is recommended for most use cases, to avoid
 unintentionally exposing draft records.
 
 ```php
@@ -35,9 +35,9 @@ Setting the mode globally via the `Revisor` facade will override the global defa
 ```php
 use Indra\Revisor\Facades\Revisor;
 
-// Global mode is set to `RevisorMode::Published`
+// Global mode is set to `RevisorContext::Published`
 
-Revisor::setMode(RevisorMode::Draft);
+Revisor::setContext(RevisorContext::Draft);
 
 // this will query the pages_drafts table
 
@@ -46,15 +46,15 @@ $page = Page::first();
 
 ### 3. Locally via Closures
 
-To override both the above Global modes inside a Closure, use the `withPublishedRecords`, `withDraftRecords` or
+To override both the above Global modes inside a Closure, use the `withPublishedContext`, `withDraftContext` or
 `withVersionRecords` method on the `Revisor` facade.
 
 ```php
 use Indra\Revisor\Facades\Revisor;
 
-// Global mode is set to `RevisorMode::Published`
+// Global mode is set to `RevisorContext::Published`
 
-Revisor::withDraftRecords(function () {
+Revisor::withDraftContext(function () {
     
     // this will query the pages_drafts table
     
@@ -69,23 +69,23 @@ is run.
 
 ### 4. Locally on the Model / Query Builder via Scopes
 
-Setting the RevisorMode on a Model or Query will override any other mode settings for that Model or
-Builder instance. This can be achieved by using the Local Query Scope methods `withDraftRecords`,
-`withPublishedRecords` or `withVersionRecords` on your Model or Query Builder.
+Setting the RevisorContext on a Model or Query will override any other mode settings for that Model or
+Builder instance. This can be achieved by using the Local Query Scope methods `withDraftContext`,
+`withPublishedContext` or `withVersionRecords` on your Model or Query Builder.
 
 ```php
-// Global mode is set to `RevisorMode::Published`
+// Global mode is set to `RevisorContext::Published`
 
 // this will create and retrieve a draft record
 
-Page::withDraftRecords()->create([...]);
+Page::withDraftContext()->create([...]);
 
-$page = Page::withDraftRecords()->first(); 
+$page = Page::withDraftContext()->first(); 
 ```
 
 ## Middleware
 
-Revisor provides three Middlewares to help you set the RevisorMode on specific routes.
+Revisor provides three Middlewares to help you set the RevisorContext on specific routes.
 
 ### DraftMiddleware
 
@@ -102,13 +102,14 @@ Route::group('/admin', function () {
 
 ### DraftableMiddleware
 
-Similar to `DraftMiddleware` but only activates `RevisorMode::Draft` if the Request contains a `?draft` query parameter.
+Similar to `DraftMiddleware` but only activates `RevisorContext::Draft` if the Request contains a `?draft` query
+parameter.
 Useful for optionally enabling Draft mode on a Route ie. when previewing a draft record.
 
 ### PublishedMiddleware
 
 Similar to `DraftMiddleware` but for Published Records. Useful if your config sets the default mode to
-`RevisorMode::Draft`  
+`RevisorContext::Draft`  
 
 
 

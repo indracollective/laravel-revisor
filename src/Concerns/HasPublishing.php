@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
-use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasPublishing
@@ -59,9 +59,9 @@ trait HasPublishing
     /**
      * Get a Builder instance for the Published table
      */
-    public function scopeWithPublishedRecords(Builder $query): Builder
+    public function scopeWithPublishedContext(Builder $query): Builder
     {
-        $query->getModel()->setRevisorMode(RevisorMode::Published);
+        $query->getModel()->setRevisorContext(RevisorContext::Published);
         $query->getQuery()->from = $query->getModel()->getTable();
 
         return $query;
@@ -149,7 +149,7 @@ trait HasPublishing
     public function applyStateToPublishedRecord(): HasRevisorContract
     {
         // find or make the published record
-        $published = $this->publishedRecord ?? static::make()->setRevisorMode(RevisorMode::Published);
+        $published = $this->publishedRecord ?? static::make()->setRevisorContext(RevisorContext::Published);
 
         // copy the attributes from the draft record to the published record
         $published->forceFill($this->attributes);
@@ -184,7 +184,7 @@ trait HasPublishing
             throw new Exception('The published record HasOne relationship is only available to Draft and Version records');
         }
 
-        $instance = (new static)->withPublishedRecords();
+        $instance = (new static)->withPublishedContext();
         $localKey = $this->isVersionTableRecord() ? 'record_id' : $this->getKeyName();
 
         return $this->newHasOne(
@@ -203,7 +203,7 @@ trait HasPublishing
             throw new Exception('The draft record HasOne relationship is only available to Published and Version records');
         }
 
-        $instance = (new static)->withDraftRecords();
+        $instance = (new static)->withDraftContext();
         $localKey = $this->isVersionTableRecord() ? 'record_id' : $this->getKeyName();
 
         return $this->newHasOne(

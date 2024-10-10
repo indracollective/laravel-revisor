@@ -46,17 +46,17 @@ The following configurations will then be available in you app in config/revisor
 ```php
 return [
     // The default mode determines which table will be read/written to by default
-    // The RevisorMode enum is used to define the possible values for this
+    // The RevisorContext enum is used to define the possible values for this
     // which are `Draft`, `Version` and `Published`
-    'default_mode' => RevisorMode::Published,
+    'default_context' => RevisorContext::Published,
 
     // The table suffixes are used to define the table names for each mode
-    // The keys are the values of the RevisorMode enum
+    // The keys are the values of the RevisorContext enum
     // The values are the table suffixes
     'table_suffixes' => [
-        RevisorMode::Draft->value => '_drafts',
-        RevisorMode::Version->value => '_versions',
-        RevisorMode::Published->value => '_published',
+        RevisorContext::Draft->value => '_drafts',
+        RevisorContext::Version->value => '_versions',
+        RevisorContext::Published->value => '_published',
     ],
 
     // The publishing config is used to determine the default publishing behaviour,

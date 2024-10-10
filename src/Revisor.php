@@ -7,13 +7,12 @@ namespace Indra\Revisor;
 use Closure;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Schema;
-use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Enums\RevisorContext;
 
 class Revisor
 {
-    protected ?RevisorMode $mode = null;
-
     /**
      * Creates 3 tables for the given table name:
      * - {baseTableName}_versions, which holds all the versions of the records
@@ -24,7 +23,7 @@ class Revisor
     {
         // create the draft table
         Schema::create(static::getDraftTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table, RevisorMode::Draft);
+            $callback($table, RevisorContext::Draft);
             $table->boolean(config('revisor.publishing.table_columns.is_published'))->default(0);
             $table->timestamp(config('revisor.publishing.table_columns.published_at'))->nullable();
             $table->nullableMorphs(config('revisor.publishing.table_columns.publisher'));
@@ -34,7 +33,7 @@ class Revisor
 
         // create the versions table
         Schema::create(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback, $baseTableName) {
-            $callback($table, RevisorMode::Version);
+            $callback($table, RevisorContext::Version);
             $table->boolean(config('revisor.publishing.table_columns.is_published'))->default(0)->index();
             $table->timestamp(config('revisor.publishing.table_columns.published_at'))->nullable();
             $table->nullableMorphs(config('revisor.publishing.table_columns.publisher'));
@@ -45,7 +44,7 @@ class Revisor
 
         // create the published table
         Schema::create(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table, RevisorMode::Published);
+            $callback($table, RevisorContext::Published);
             $table->boolean(config('revisor.publishing.table_columns.is_published'))->default(0);
             $table->timestamp(config('revisor.publishing.table_columns.published_at'))->nullable();
             $table->nullableMorphs(config('revisor.publishing.table_columns.publisher'));
@@ -64,17 +63,17 @@ class Revisor
     {
         // amend the versions table
         Schema::table(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table, RevisorMode::Version);
+            $callback($table, RevisorContext::Version);
         });
 
         // amend the published table
         Schema::table(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table, RevisorMode::Published);
+            $callback($table, RevisorContext::Published);
         });
 
         // amend the draft table
         Schema::table(static::getDraftTableFor($baseTableName), function (Blueprint $table) use ($callback) {
-            $callback($table, RevisorMode::Draft);
+            $callback($table, RevisorContext::Draft);
         });
     }
 
@@ -94,7 +93,7 @@ class Revisor
      */
     public function getVersionTableFor(string $baseTableName): string
     {
-        return $this->getSuffixedTableNameFor($baseTableName, RevisorMode::Version);
+        return $this->getSuffixedTableNameFor($baseTableName, RevisorContext::Version);
     }
 
     /**
@@ -103,7 +102,7 @@ class Revisor
      */
     public function getPublishedTableFor(string $baseTableName): string
     {
-        return $this->getSuffixedTableNameFor($baseTableName, RevisorMode::Published);
+        return $this->getSuffixedTableNameFor($baseTableName, RevisorContext::Published);
     }
 
     /**
@@ -112,18 +111,18 @@ class Revisor
      */
     public function getDraftTableFor(string $baseTableName): string
     {
-        return $this->getSuffixedTableNameFor($baseTableName, RevisorMode::Draft);
+        return $this->getSuffixedTableNameFor($baseTableName, RevisorContext::Draft);
     }
 
     /**
      * Get the suffixed table name for the given baseTableName
-     * and RevisorMode (defaults to the current mode)
+     * and RevisorContext (defaults to the active RevisorContext)
      */
-    public function getSuffixedTableNameFor(string $baseTableName, ?RevisorMode $mode = null): string
+    public function getSuffixedTableNameFor(string $baseTableName, ?RevisorContext $context = null): string
     {
-        $mode = $mode ?? $this->getMode();
+        $context = $context ?? $this->getContext();
 
-        $suffix = config('revisor.table_suffixes.'.$mode->value);
+        $suffix = config('revisor.table_suffixes.'.$context->value);
 
         return $suffix ? $baseTableName.$suffix : $baseTableName;
     }
@@ -141,60 +140,69 @@ class Revisor
     }
 
     /**
-     * Get the current RevisorMode
+     * Get the current RevisorContext
      */
-    public function getMode(): RevisorMode
+    public function getContext(bool $orDefaultContext = true): ?RevisorContext
     {
-        return $this->mode ?? config('revisor.default_mode');
+        $value = Context::get(RevisorContext::KEY);
+
+        if ($value) {
+            return RevisorContext::from($value);
+        }
+
+        return $orDefaultContext ? config('revisor.default_context') : null;
     }
 
     /**
-     * Set the current RevisorMode
+     * Set the current RevisorContext
      */
-    public function setMode(RevisorMode $mode): static
+    public function setContext(RevisorContext $context): static
     {
-        $this->mode = $mode;
+        Context::add(RevisorContext::KEY, $context->value);
 
         return $this;
     }
 
     /**
-     * Execute the given callback with the given RevisorMode
-     * Useful for switching modes temporarily
+     * Execute the given callback with the given RevisorContext
+     * Useful for switching context temporarily
      */
-    public function withMode(RevisorMode $mode, callable $callback): mixed
+    public function withContext(RevisorContext $context, callable $callback): mixed
     {
-        $previousMode = $this->mode;
-        $this->mode = $mode;
+        $previousContext = $this->getContext(false);
+
+        $this->setContext($context);
 
         $result = $callback($this);
 
-        $this->mode = $previousMode;
+        $previousContext ?
+            $this->setContext($previousContext) :
+            Context::forget(RevisorContext::KEY);
 
         return $result;
     }
 
     /**
-     * Execute the given callback with the Version RevisorMode
+     * Execute the given callback with the Version RevisorContext
      */
-    public function withPublishedRecords(callable $callback): mixed
+    public function withPublishedContext(callable $callback): mixed
     {
-        return $this->withMode(RevisorMode::Published, $callback);
+        return $this->withContext(RevisorContext::Published, $callback);
     }
 
     /**
-     * Execute the given callback with the Version RevisorMode
+     * Execute the given callback with the Version RevisorContext
      */
-    public function withVersionRecords(callable $callback): mixed
+    public function withVersionContext(callable $callback): mixed
     {
-        return $this->withMode(RevisorMode::Version, $callback);
+        return $this->withContext(RevisorContext::Version, $callback);
     }
 
     /**
-     * Execute the given callback with the Draft RevisorMode
+     * Execute the given callback with the Draft RevisorContext
      */
-    public function withDraftRecords(callable $callback): mixed
+    public function withDraftContext(callable $callback): mixed
     {
-        return $this->withMode(RevisorMode::Draft, $callback);
+        return $this->withContext(RevisorContext::Draft, $callback);
     }
 }

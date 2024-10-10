@@ -5,7 +5,7 @@ the [HasVersioning Trait](https://github.com/indracollective/laravel-revisor/blo
 if you'd like to dig deeper.
 
 ::: info NOTE
-All examples below are in the context of `RevisorMode::Draft` and Revisor-enabled `Page` Model
+All examples below are in the context of `RevisorContext::Draft` and Revisor-enabled `Page` Model
 :::
 
 ## Automatic Versioning on Created/Updated
@@ -89,7 +89,7 @@ $page->currentVersion;
 Get Version records without querying the Draft or Published tables.
 
 ```php
-Page::withVersionRecords()->where('record_id', 1);
+Page::withVersionContext()->where('record_id', 1);
 ```
 
 ## Restore a Previous Version

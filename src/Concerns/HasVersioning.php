@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
-use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasVersioning
@@ -112,7 +112,7 @@ trait HasVersioning
             ])
             ->toArray();
 
-        $version = static::make()->setRevisorMode(RevisorMode::Version)->forceFill($attributes);
+        $version = static::make()->setRevisorContext(RevisorContext::Version)->forceFill($attributes);
         $this->setVersionAsCurrent($version);
 
         $this->pruneVersions();
@@ -158,8 +158,8 @@ trait HasVersioning
     public function restoreDraftToThisVersion(): static
     {
         if (! $this->isVersionTableRecord()) {
-            $mode = $this->getRevisorMode();
-            throw new \Exception("Can not restore this record, it is a $mode record. Only Version records can be restored.");
+            $context = $this->getRevisorContext();
+            throw new \Exception("Can not restore this record, it is a $context record. Only Version records can be restored.");
         }
 
         $this->draftRecord->revertToVersion($this);
@@ -188,7 +188,7 @@ trait HasVersioning
 
     public function versionRecords(): HasMany
     {
-        $instance = $this->newRelatedInstance(static::class)->setRevisorMode(RevisorMode::Version);
+        $instance = $this->newRelatedInstance(static::class)->setRevisorContext(RevisorContext::Version);
 
         return $this->newHasMany(
             $instance->newQuery(), $this, $this->getVersionTable().'.record_id', $this->getKeyName()
@@ -197,7 +197,7 @@ trait HasVersioning
 
     public function currentVersionRecord(): HasOne
     {
-        $query = $this->newRelatedInstance(static::class)->withVersionRecords();
+        $query = $this->newRelatedInstance(static::class)->withVersionContext();
 
         return $this->newHasOne(
             $query, $this, $query->getModel()->getTable().'.record_id', $this->getKeyName()
@@ -284,9 +284,9 @@ trait HasVersioning
     /**
      * Get a Builder instance for the Version table
      */
-    public function scopeWithVersionRecords(Builder $query): Builder
+    public function scopeWithVersionContext(Builder $query): Builder
     {
-        $query->getModel()->setRevisorMode(RevisorMode::Version);
+        $query->getModel()->setRevisorContext(RevisorContext::Version);
         $query->getQuery()->from = $query->getModel()->getTable();
 
         return $query;

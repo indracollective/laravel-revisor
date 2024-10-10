@@ -1,17 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Middleware\DraftMiddleware;
 use Indra\Revisor\Tests\Models\Page;
-
 use function Pest\Laravel\get;
 
 beforeEach(function () {
     test()->page1 = Page::create(['title' => 'Page 1']);
     test()->page2 = Page::create(['title' => 'Page 2'])->publish();
 
-    config()->set('revisor.default_mode', RevisorMode::Published);
+    config()->set('revisor.default_context', RevisorContext::Published);
 
     Route::middleware(['web'])->group(function () {
         Route::get('/default', function () {

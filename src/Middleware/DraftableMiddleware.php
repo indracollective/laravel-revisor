@@ -6,7 +6,7 @@ namespace Indra\Revisor\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Facades\Revisor;
 
 class DraftableMiddleware
@@ -14,7 +14,7 @@ class DraftableMiddleware
     public function handle(Request $request, Closure $next)
     {
         if ($this->isDraftRequest($request)) {
-            Revisor::setMode(RevisorMode::Draft);
+            Revisor::setContext(RevisorContext::Draft);
         }
 
         return $next($request);

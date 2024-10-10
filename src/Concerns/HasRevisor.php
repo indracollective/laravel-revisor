@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
-use Indra\Revisor\Enums\RevisorMode;
+use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Facades\Revisor;
 
 trait HasRevisor
@@ -16,7 +16,7 @@ trait HasRevisor
     use HasPublishing;
     use HasVersioning;
 
-    protected ?RevisorMode $revisorMode = null;
+    protected ?RevisorContext $revisorContext = null;
 
     public static function bootHasRevisor(): void
     {
@@ -63,17 +63,17 @@ trait HasRevisor
     public function newInstance($attributes = [], $exists = false): self
     {
         return parent::newInstance($attributes, $exists)
-            ->setRevisorMode($this->getRevisorMode() ?? Revisor::getMode());
+            ->setRevisorContext($this->getRevisorContext() ?? Revisor::getContext());
     }
 
     /**
      * Overrides Model::getTable to return the appropriate
      * table (draft, version, published) based on
-     * the current RevisorMode
+     * the current RevisorContext
      */
     public function getTable(): string
     {
-        return Revisor::getSuffixedTableNameFor($this->getBaseTable(), $this->getRevisorMode());
+        return Revisor::getSuffixedTableNameFor($this->getBaseTable(), $this->getRevisorContext());
     }
 
     /**
@@ -95,9 +95,9 @@ trait HasRevisor
     /**
      * Get a Builder instance for the Draft table
      */
-    public function scopeWithDraftRecords(Builder $query): Builder
+    public function scopeWithDraftContext(Builder $query): Builder
     {
-        $query->getModel()->setRevisorMode(RevisorMode::Draft);
+        $query->getModel()->setRevisorContext(RevisorContext::Draft);
         $query->getQuery()->from = $query->getModel()->getTable();
 
         return $query;
@@ -129,16 +129,16 @@ trait HasRevisor
         }
     }
 
-    public function setRevisorMode(?RevisorMode $mode = null): static
+    public function setRevisorContext(?RevisorContext $context = null): static
     {
-        $this->revisorMode = $mode;
+        $this->revisorContext = $context;
 
         return $this;
     }
 
-    public function getRevisorMode(): ?RevisorMode
+    public function getRevisorContext(): ?RevisorContext
     {
-        return $this->revisorMode;
+        return $this->revisorContext;
     }
 
     /**
