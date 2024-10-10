@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Middleware\DraftMiddleware;
 use Indra\Revisor\Tests\Models\Page;
+
 use function Pest\Laravel\get;
 
 beforeEach(function () {
