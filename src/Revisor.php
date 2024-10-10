@@ -125,7 +125,7 @@ class Revisor
 
         $suffix = config('revisor.table_suffixes.'.$mode->value);
 
-        return $suffix ? str($baseTableName)->singular().$suffix : $baseTableName;
+        return $suffix ? $baseTableName.$suffix : $baseTableName;
     }
 
     /**

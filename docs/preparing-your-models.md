@@ -1,15 +1,14 @@
-# Setup Migrations & Models
+# Preparing Migrations & Models
 
-Revisor can be added to your models in two simple steps:&#x20;
+Revisor can be added to your Models in two simple steps:&#x20;
 
-1. [Create a database migration](setting-up-your-migrations.md#id-1.-migrations-for-revisor-models)&#x20;
-2. [Enable Revisor on your Model](setting-up-your-migrations.md#id-2.-enable-revisor-on-your-model)
+1. [Prepare Database Migrations](#_1-prepare-database-migrations)
+2. [Prepare Models](#_2-prepare-models)
 
-***
+## 1. Prepare Database Migrations
 
-## 1. Migrations for Revisor Models
-
-Revisor operates on 3 tables (draft, published, versions) per Model. Fear not! Revisor makes managing migrations for these just as easy as standard migrations.&#x20;
+Revisor operates on 3 tables (draft, published, versions) per Model. Fear not! Revisor makes managing migrations for
+these just as easy as standard migrations.&#x20;
 
 Let's generate a new migration and take a look...
 
@@ -17,7 +16,7 @@ Let's generate a new migration and take a look...
 php artisan make:migration
 ```
 
-### **Generating New Revisor Tables**
+### Generating New Revisor Tables
 
 Below is an example migration that creates database tables for a revisor-enabled `Page` model
 
@@ -45,16 +44,17 @@ Run you migration as usual with:
 php artisan migrate
 ```
 
-The `Revisor::createTableSchemas` will use the `baseTable` given as the first argument to create all 3 `pages_drafts`, `pages_versions` and `pages_published` tables. As with regular Laravel migrations, the closure passed in the second argument will be used to build the table schemas according to your needs.
-
-***
+When the migration runs, `Revisor::createTableSchemas` will use the `baseTable` "pages" given as the first argument to
+create all 3 `pages_drafts`,
+`pages_versions` and `pages_published` tables. As with regular Laravel migrations, the closure passed in the second
+argument will be used to build the table schemas according to your needs.
 
 ### Revisor Table Columns
 
 Revisor's `createTableSchemas` method will add the following extra columns to your tables:
 
 | Column          | Type            | Purpose                                            |
-| --------------- | --------------- | -------------------------------------------------- |
+|-----------------|-----------------|----------------------------------------------------|
 | publisher       | nullableMorphs  | User who published the record                      |
 | published\_at   | timestamp       | When the record was published                      |
 | is\_published   | boolean         | Whether the record is published                    |
@@ -62,9 +62,10 @@ Revisor's `createTableSchemas` method will add the following extra columns to yo
 | version\_number | unsignedInteger | Sequential version number                          |
 | record\_id      | foreignKey      | id of draft/published record (versions table only) |
 
-### **Amending Existing Revisor Tables**
+### Amending Existing Revisor Tables
 
-Amending/modifying existing Revisor table schemas can be done in much the same way as creating new ones. This time we'll  the `amendTableSchemas` method on the `Revisor` Facade:
+Modifying existing Revisor table schemas can be done in much the same way as creating new ones. This time we'll
+the `amendTableSchemas` method on the `Revisor` Facade:
 
 ```php
 use Illuminate\Database\Migrations\Migration;
@@ -90,23 +91,23 @@ Run you migrations as usual with:
 php artisan migrate
 ```
 
-Review the generated database schema in your favourite UI to familiarise yourself with the Revisor database schema.
-
-***
+Review the generated database schema in your favourite DB tool to familiarise yourself with the Revisor database schema.
 
 ### Retrofitting Existing Models/Tables
 
-If you are needing to add Revisor to Models in your application that already have production data stored, we recommend following the steps in [#generating-new-revisor-tables](setting-up-your-migrations.md#generating-new-revisor-tables "mention"), and then importing the data from the old single table into the new `Draft` and `Published` tables.
+If you are needing to add Revisor to Models in your application that already have production data stored, we recommend
+following the steps in [#generating-new-revisor-tables](preparing-your-models#generating-new-revisor-tables "mention"),
+and then
+importing the data from the old single table into the new `Draft` and `Published` tables.
 
-***
+## 2. Prepare Models
 
-## 2. Enabling Revisor on your Models&#x20;
+Adding Revisor to your Models is as simple as implementing the `HasRevisor` Interface and Trait.
 
-Enabling Revisor on your Model involves 3 simple steps:
-
-1. Implement the `Indra\Revisor\Contracts\HasRevisor` Interface
-2. Use the `Indra\Revisor\Concerns\HasRevisor` Trait
-3. Define the [`$baseTable`](#user-content-fn-1)[^1]  property (optional)&#x20;
+::: tip Note
+You can define a `$baseTable` property in place of the usual `$table` property, for
+cases where your desired table name is not what Laravel would otherwise assume based on your Model class name.
+:::
 
 This should leave your Model looking something like this:
 
@@ -124,7 +125,3 @@ class Page extends Model implements HasRevisorContract
     ...
 
 ```
-
-
-
-[^1]: The `$baseTable` property is available in place of the `$table` property, for cases where your desired table name is not what Laravel would otherwise assume based on your Model class name.
