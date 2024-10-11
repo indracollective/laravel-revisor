@@ -35,7 +35,14 @@ export default defineConfig({
                             {text: "Preparing your Models", link: "/preparing-your-models"},
                             {text: "Managing Context", link: "/managing-context"},
                             {text: "Publishing", link: "/publishing"},
-                            {text: "Versioning", link: "/versioning"}
+                            {text: "Versioning", link: "/versioning"},
+                            {text: "Model Events", link: "/model-events"}
+                        ],
+                    },
+                    {
+                        text: "Integrations",
+                        items: [
+                            {text: "FilamentPHP", link: "/filament-php"},
                         ],
                     },
                 ],

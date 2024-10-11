@@ -117,7 +117,7 @@ trait HasVersioning
 
         $this->pruneVersions();
 
-        $this->fireModelEvent('savedNewVersion');
+        $this->fireModelEvent('savedNewVersion', $version);
 
         return $this;
     }
@@ -248,6 +248,7 @@ trait HasVersioning
         if (! $this->currentVersionRecord) {
             return $this->saveNewVersion();
         }
+        $this->fireModelEvent('syncingToCurrentVersion', $this->currentVersionRecord);
 
         $attributes = collect($this->attributes)
             ->except([$this->getKeyName(), 'version_number'])
@@ -262,6 +263,8 @@ trait HasVersioning
                 ->whereNot('id', $this->currentVersionRecord->id)
                 ->update(['is_published' => 0]);
         }
+
+        $this->fireModelEvent('syncedToCurrentVersion', $this->currentVersionRecord);
 
         return $this;
     }
@@ -352,6 +355,22 @@ trait HasVersioning
     public static function savedNewVersion(string|Closure $callback): void
     {
         static::registerModelEvent('savedNewVersion', $callback);
+    }
+
+    /**
+     * Register a "syncingToCurrentVersion" model event callback with the dispatcher.
+     */
+    public static function syncingToCurrentVersion(string|Closure $callback): void
+    {
+        static::registerModelEvent('syncingToCurrentVersion', $callback);
+    }
+
+    /**
+     * Register a "syncedToCurrentVersion" model event callback with the dispatcher.
+     */
+    public static function syncedToCurrentVersion(string|Closure $callback): void
+    {
+        static::registerModelEvent('syncedToCurrentVersion', $callback);
     }
 
     /**
