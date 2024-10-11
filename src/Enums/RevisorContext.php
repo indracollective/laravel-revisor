@@ -10,5 +10,5 @@ enum RevisorContext: string
     case Version = 'Version';
     case Published = 'Published';
 
-    const KEY = 'revisor';
+    const KEY = 'revisor-context';
 }

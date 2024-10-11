@@ -22,7 +22,7 @@ $page->update([...]);
 echo $page->versions()->count(); // 2
 ```
 
-If you would like more control over when new Version records are created, you can disable auto-versioning in your
+To take more control of when new Version records are created, you can disable auto-versioning in your
 `config/revisor.php` file:
 
 ```php
@@ -53,7 +53,7 @@ echo $page->versions()->count(); // 2
 
 ## Manual Versioning
 
-You can manually version records by calling the `saveNewVersion()` method on the Draft record.
+Manually version records by calling the `saveNewVersion()` method on the Draft record.
 
 ```php
 $page = Page::create([...]);
@@ -69,6 +69,8 @@ To update the current Version record rather than creating a new Version record, 
 `syncToCurrentVersionRecord()` method on the Draft record.
 
 ```php
+// config.revisor.versioning.save_new_version_on_updated = false
+
 $page->update([...])->syncToCurrentVersionRecord();
 ```
 
@@ -94,9 +96,8 @@ Page::withVersionContext()->where('record_id', 1);
 
 ## Restore a Previous Version
 
-In the below example, we have a Draft record with two Versions. We want to restore the Draft record to the state of
-the first Version. This can be done in a couple of ways depending on your use case and what data you have available in
-your context :
+In the below example, we have a Draft record with two Versions. To restore the Draft record to the state of
+the first Version, we can use one of the following methods depending on your use case and what data you have loaded:
 
 ```php
 $firstVersion = $page->versions()->first();
@@ -116,18 +117,27 @@ $page->revertToVersionNumber($firstVersion->version_number);
 $firstVersion->restoreDraftToThisVersion();
 ```
 
-## Pruning Versions
+## Pruning Version Records
 
-**By Default**, Revisor will keep the last 10 Versions for each Draft record.
+**By Default**, Revisor will keep the latest 10 Versions for each Revisor-enabled Model record.
 
+This can be configured in your `config/revisor.php` config file:
+
+```php
 ...
-
+// The maximum number of versions to keep
+// if set to true, version records will not be pruned
+'keep_versions' => 10,
 ...
+```
 
-## Version Pruning
+The default config value can be overridden on specific Models by setting the `$keepVersions` property on the Model:
 
-...
+```php
+class Page extends Model implements HasRevisorContract
+{
+    use HasRevisor;
 
-
-
-
+    protected null|int|bool $keepVersions = true; // [!code focus]
+    ...
+```

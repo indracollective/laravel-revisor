@@ -33,7 +33,7 @@ export default defineConfig({
                         text: "Usage",
                         items: [
                             {text: "Preparing your Models", link: "/preparing-your-models"},
-                            {text: "Modes & Middleware", link: "/modes-and-middleware"},
+                            {text: "Managing Context", link: "/managing-context"},
                             {text: "Publishing", link: "/publishing"},
                             {text: "Versioning", link: "/versioning"}
                         ],

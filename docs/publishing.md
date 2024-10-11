@@ -8,7 +8,7 @@ the [HasPublishing Trait](https://github.com/indracollective/laravel-revisor/blo
 if you'd like to dig deeper.
 
 ::: info NOTE
-All examples below are in the context of `RevisorContext::Draft`, and a Revisor-enabled `Page` Model
+All examples below are in context of `RevisorContext::Draft` and a Revisor-enabled `Page` Model
 :::
 
 ## Publish a Record
@@ -22,7 +22,7 @@ echo $page->isPublished(); // true
 
 ## Automatic Publishing on Created/Updated
 
-If you would like to automatically publish records on creation/update you can make use of the `publishOnCreated` and
+To automatically publish records on creation/update, you can make use of the `publishOnCreated` and
 `publishOnUpdated` methods. This can be useful in Admin Panels like FilamentPHP where you want to augment the default
 save behaviour without having to override the save method.
 
@@ -32,19 +32,9 @@ $page->publishOnCreated();
 $page->save(); 
 
 echo $page->isPublished(); // true
-
-$page->update([...]);
-
-echo $page->isRevised(); // true (isRevised() checks if the record has been updated since it was published)
-
-$page->publishOnUpdated();
-
-$page->save();
-
-echo $page->isRevised(); // false
 ```
 
-If you would like to automatically publish records on creation/update **by default**, you can set the following in your
+To automatically publish records on Created/Updated **by default**, you can set the following in your
 `config/revisor.php` file:
 
 ```php
@@ -58,7 +48,7 @@ If you would like to automatically publish records on creation/update **by defau
 
 ## Retrieve the Published Record
 
-Revisor enabled Models have a `publishedRecord` HasOne relationship, which allows you to retrieve the published record
+Revisor-enabled Models have a `publishedRecord` HasOne relationship, which allows you to retrieve the published record
 from the Draft record or one of its Version records.
 
 ```php
@@ -68,6 +58,26 @@ $publishedPage = $page->publishedRecord;
 // the Draft record can also be retrieved from the Published record
 
 $pageDraft = $page->draftRecord; 
+```
+
+## Check Published Status
+
+Check the published status of a record using the `isPublished` method on the Draft record.
+
+If your Draft record has been updated since it was last published, the `isPublished` method will still return true.
+
+Use the `isRevised` method to check if the Draft record has been updated since it was last published.
+
+```php
+$page = Page::create([...])->publish();
+$page->update([...])
+
+echo $page->isPublished(); // true
+echo $page->isRevised(); // true
+
+$page->publish();
+
+echo $page->isRevised(); // false
 ```
 
 ## Unpublish a Record
