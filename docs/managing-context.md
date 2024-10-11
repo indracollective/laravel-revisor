@@ -62,7 +62,7 @@ $page = Page::first();
 
 To override both the above Global `RevisorContexts` inside a Closure, use the `withPublishedContext`, `withDraftContext`
 or
-`withVersionRecords` method on the `Revisor` facade.
+`withVersionContext` method on the `Revisor` facade.
 
 ```php
 use Indra\Revisor\Facades\Revisor;
@@ -82,7 +82,7 @@ Under the hood, this temporarily sets the `RevisorContext` in Laravel's Context 
 
 Setting the `RevisorContext` on a Model or Query will override all other activated `RevisorContext`, for that Model or
 Builder instance. This can be achieved by using the Local Query Scope methods `withDraftContext`,
-`withPublishedContext` or `withVersionRecords` on your Model or Query Builder.
+`withPublishedContext` or `withVersionContext` on your Model or Query Builder.
 
 ```php
 Revisor::withPublishedContext(function() {
