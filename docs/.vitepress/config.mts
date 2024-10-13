@@ -6,10 +6,11 @@ export default defineConfig({
     description: "Revisor is a robust versioning and publishing system for Laravel Eloquent Models.",
     cleanUrls: true,
     themeConfig: {
-        // logo: {
-        //     light: '/assets/IndraCube1-light.svg',
-        //     dark: '/assets/IndraCube1.svg',
-        // },
+        logo: {
+            light: '/assets/slice1blight.svg',
+            dark: '/assets/slice1bdark.svg',
+        },
+        siteTitle: false,
         // https://vitepress.dev/reference/default-theme-config
         nav: [
             {text: "IndraCollective", link: "https://indracollective.dev"},
