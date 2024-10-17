@@ -4,7 +4,6 @@ layout: home
 
 hero:
   name: "Laravel Revisor"
-  text: "By IndraCollective"
   tagline: "Robust Draft, Publishing and Versioning\nfor Laravel Eloquent Models."
   actions:
     - theme: brand
@@ -16,9 +15,9 @@ hero:
 
 features:
   - title: Seamless Database Design
-    details: Separate, complete database tables for Draft, Published and Version history records per Eloquent Model, reducing exposure to the added complexity of context-dependent records
-  - title: Intuitive API
-    details: Super simple, feature complete API for Publishing and Versioning records, including Version rollbacks, pruning and more.
+    details: Separate, complete database tables for Draft, Published and Version history records per Eloquent Model.
+  - title: Beautiful API
+    details: Everything you need to manage Publishing and Versioning records including Version rollbacks, pruning and more in a simple and intuitive API.
   - title:  Flexible Context Management
-    details: Easily switch between Draft, Published and Version contexts at any level including Global Config, Route Middleware, Query Scopes and context-isolating Closures.
+    details: Easily move between Draft, Published and Version contexts at any level; Global Config, Route Middleware, Query Scopes and more.
 ---

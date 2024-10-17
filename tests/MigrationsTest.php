@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Schema;
 use Indra\Revisor\Facades\Revisor;
 
-it('creates and amends revisor schemas', function () {
-    // table creation and amendments in TestCase.php
+it('creates and alters revisor schemas', function () {
+    // table creation and alterments in TestCase.php
 
     // assert that expected tables exist
     expect(Schema::hasTable(Revisor::getDraftTableFor('pages')))->toBeTrue()

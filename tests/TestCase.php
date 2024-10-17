@@ -55,8 +55,8 @@ class TestCase extends Orchestra
             $table->timestamps();
         });
 
-        // amend test tables
-        Revisor::amendTableSchemas('pages', function (Blueprint $table): void {
+        // alter test tables
+        Revisor::alterTableSchemas('pages', function (Blueprint $table): void {
             $table->string('content')->nullable();
         });
     }

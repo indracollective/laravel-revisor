@@ -1,11 +1,11 @@
 # Model Events
 
-Laravel Revisor provides several model events for you hook into key publishing and versioning events.
+Laravel Revisor fires several Model Events for you hook into key publishing and versioning events.
 
-All events are fired on the Draft record, and pass the relevant published or versioned record as an argument to your
+All events are fired on the Draft record, and pass the relevant Published or Versioned record as an argument to your
 callback (if applicable).
 
-Event listeners can be registered using static methods on the Model class that correspond to the event name.
+Event listeners can be registered using static methods on the Model class. The method names correspond to the event name.
 
 ```php
 Page::published(function (Page $page, Page $publishedRecord) {

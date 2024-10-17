@@ -1,206 +1,54 @@
 # Introduction
 
-Laravel Revisor is a robust draft, versioning and publishing system for Laravel Eloquent Models.
+Laravel Revisor provides robust draft, publishing and versioning for Laravel Eloquent Models.
 
-✅ Separate, complete database tables for draft, published and version history records of each Model
+There are a good handful of Laravel versioning packages out there with varying approaches. Revisor aims to overcome their different trade-offs, offering maximum power, flexibility and interoperability with minimum exposure to complexity.
 
-✅ Migration API for easily creating/modifying draft, published and version history tables
+## Design Goals
 
-✅ Easy context management for setting the appropriate reading/writing "mode" at all levels of operation, from global
-config, to middleware, mode callbacks and query builder.
+### 1. Draft, Published and Versioned record data should be clearly distinguished and cleanly instantiable as Eloquent Models.
 
-✅ Clean, flexible API for drafting, publishing and version management
+Revisor provides everything you need to seamlessly manage your Draft, Published and Version records in separate, complete tables for each Model. For example - a `Page` model would have 3 tables; `pages_published`, `pages_drafts` and `pages_versions`. 
 
-✅ High configurability and excellent documentation
-
-### Concepts
-
-#### Modes
-
-...
-
-#### Tables
-
-...
-
-#### Base table
-
-### Installation
-
-Install the package via composer:
-
-```bash
-composer require indra/laravel-revisor
-```
-
-### Configuration
-
-Publish the package configuration to your application:
-
-```bash
-php artisan vendor:publish --tag="laravel-revisor-config"
-```
-
-The following configurations will then be available in you app in config/revisor.php
+This allows for a clear separation of concerns and reduces exposure to the complexity inherent in managing multiple versions of records.
 
 ```php
-return [
-    // The default mode determines which table will be read/written to by default
-    // The RevisorContext enum is used to define the possible values for this
-    // which are `Draft`, `Version` and `Published`
-    'default_context' => RevisorContext::Published,
-
-    // The table suffixes are used to define the table names for each mode
-    // The keys are the values of the RevisorContext enum
-    // The values are the table suffixes
-    'table_suffixes' => [
-        RevisorContext::Draft->value => '_drafts',
-        RevisorContext::Version->value => '_versions',
-        RevisorContext::Published->value => '_published',
-    ],
-
-    // The publishing config is used to determine the default publishing behaviour,
-    'publishing' => [
-        // If true, records will be automatically published on created
-        'publish_on_created' => false,
-        // If true, records will be automatically published on updated
-        'publish_on_updated' => false,
-    ],
-
-    // The publishing config is used to determine the default versioning behaviour,
-    'versioning' => [
-        // If true, new version records will be automatically created when drafts are created
-        'save_new_version_on_created' => true,
-        // If true, new version records will be automatically created when drafts are updated
-        'save_new_version_on_updated' => true,
-        // The maximum number of versions to keep
-        // if set to true, version records will not be pruned
-        'keep_versions' => 10,
-    ],
-];
-```
-
-## Usage
-
-### 1. Write your Migrations
-
-Revisor operates on 3 tables (draft, published, versions) per model and provides convenient methods for applying and
-synchronising migrations across these tables.
-
-#### Creating New Tables
-
-Below is an example migration that creates database tables for a revisor-enabled `Page` model
-
-```php
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-use Indra\Revisor\Facades\Revisor;
-
-return new class extends Migration
+// Example: A Revisor migration creates/alters 3 tables for each Model
+public function up(): void
 {
-    public function up(): void
-    {
-        Revisor::createTableSchemas('pages', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-        });  
-    }
+    Revisor::createTableSchemas('pages', function (Blueprint $table) {
+        $table->id();
+        $table->string('title');
+    });  
 }
 ```
 
-The `Revisor::createTableSchemas` will use the `baseTableName` given as the first argument to create all 3
-`page_drafts`, `page_versions` and `page_published` tables. As with regular Laravel migrations, the callback passed in
-the second argument will be used to build the table schemas according to your needs.
+### 2. Context Management should be intuitive and powerful enough to handle any scenario
 
-Revisor will also add the following extra columns to your tables for as follows:
+Context Management refers the ability to switch between Draft, Published and Version states of your data.
 
-| Column         | Type            | Purpose                                            |
-|----------------|-----------------|----------------------------------------------------|
-| publisher      | nullableMorphs  | User who published the record                      |
-| published_at   | timestamp       | When the record was published                      |
-| is_published   | boolean         | Whether the record is published                    |
-| is_current     | boolean         | Whether the record is the current version          |
-| version_number | unsignedInteger | Sequential version number                          |
-| record_id      | foreignKey      | id of draft/published record (versions table only) |
+Revisor allows you to switch contexts at any level you will need: from Global Config, Middleware, context-isolating Closures and Query Builder. Precedence is given to the most specific context.    
 
-#### Amending Existing Tables
-
-Amending/modifying table schemas can be done in much the same way as creating new ones, by using the `amendTableSchemas`
-method on the Revisor Facade:
+Under the hood, the active `RevisorContext` determines which table will be read/written when interacting with your Eloquent Models.
 
 ```php
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-use Indra\Revisor\Facades\Revisor;
-
-return new class extends Migration
-{
-    public function up(): void
-    {
-        Revisor::amendTableSchemas('pages', function (Blueprint $table) {
-            $table->string('heading')->change();
-            $table->text('content')->nullable();
-        });  
-    }
-}
+Revisor::withDraftContext(function() {
+    // all draft pages
+    $pages = Page::all(); 
+    
+    // all published pages
+    $publishedPages = Page::withPubslishedContext()->all();
+});
 ```
 
-Run you migrations as usual with:
+### 3. Simple and easy to follow
 
-```bash
-php artisan migrate
-```
+Revisor ensures versioning and publishing procedures are uni-directional. Use of Global Scopes and Model Events are kept to a minimum. 
 
-Review the generated database schema in your favourite UI to familiarise yourself.
+The active `RevisorContext` is registered with [Laravel's Context Store](https://laravel.com/docs/context), ensuring it is visible in logs and error pages.
 
-### 2. Set up your Models
+---
 
-Revisor enabled Models require the `HasRevisor` trait and the `HasRevisor` interface.
+&nbsp;
 
-Additionally, a protected `$baseTable` property can be defined in place of the optional `$table` property sometimes
-defined on Eloquent Models. This allows the Model's `$table` property to be defined dynamically by this package,
-depending on which of the draft/published/versions tables you want to read/write.
-
-```php
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-use Indra\Revisor\Concerns\HasRevisor;
-use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
-
-class Page extends Model implements HasRevisorContract
-{
-    use HasRevisor;
-
-    protected string $baseTable = 'pages';
-
-    ...
-```
-
-### Modes
-
-#### About Modes
-
-#### Global Config
-
-#### Middleware
-
-### Interacting with Revisor Records
-
-#### Creating a draft
-
-#### Publishing
-
-##### Publishing
-
-##### Unpublishing
-
-      - Hooks
-    - Versioning
-      - Creating versions
-      - Updating versions
-      - Reverting to versions
-      - Pruning versions
-      - Hooks__
+If all that aligns with your requirements, great! Let's dive in and publish/version all the things!

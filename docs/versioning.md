@@ -34,8 +34,7 @@ To take more control of when new Version records are created, you can disable au
 ...
 ```
 
-You can also override the default behaviour on a per-model basis by using the `saveNewVersionOnCreated` and
-`saveNewVersionOnUpdated` methods which accept a boolean value.
+You can override the default behaviour on a per-Model basis by using the `saveNewVersionOnCreated` and `saveNewVersionOnUpdated` methods which accept a boolean value.
 
 ```php
 // config.revisor.versioning.save_new_version_on_created = false
@@ -65,7 +64,7 @@ $page->saveNewVersion();
 echo $page->versions()->count(); // 2
 ```
 
-To update the current Version record rather than creating a new Version record, you can call the
+To sync the current Version record with the Draft rather than creating a new Version, you can call the
 `syncToCurrentVersionRecord()` method on the Draft record.
 
 ```php
@@ -76,7 +75,7 @@ $page->update([...])->syncToCurrentVersionRecord();
 
 ## Retrieving Version Records
 
-Get all Versions for a Draft or Published record via the `versionRecords` `HasMany` relationship.
+Get all Versions of a Draft or Published record via the `versionRecords` `HasMany` relationship.
 
 ```php
 $page->versionRecords;

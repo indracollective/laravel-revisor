@@ -54,24 +54,24 @@ class Revisor
     }
 
     /**
-     * Amends 3 tables for the given baseTableName:
+     * Alters 3 tables for the given baseTableName:
      * - {baseTableName}_versions, which holds all the versions of the records
      * - {baseTableName}_live, which holds the published version of the records
      * - {baseTableName}, which holds the base data / drafts of the records
      */
-    public function amendTableSchemas(string $baseTableName, Closure $callback): void
+    public function alterTableSchemas(string $baseTableName, Closure $callback): void
     {
-        // amend the versions table
+        // alter the versions table
         Schema::table(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback) {
             $callback($table, RevisorContext::Version);
         });
 
-        // amend the published table
+        // alter the published table
         Schema::table(static::getPublishedTableFor($baseTableName), function (Blueprint $table) use ($callback) {
             $callback($table, RevisorContext::Published);
         });
 
-        // amend the draft table
+        // alter the draft table
         Schema::table(static::getDraftTableFor($baseTableName), function (Blueprint $table) use ($callback) {
             $callback($table, RevisorContext::Draft);
         });

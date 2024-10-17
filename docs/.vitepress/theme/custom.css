@@ -1,26 +1,86 @@
 :root {
-    --vp-c-brand-1: #a45af8;
-    --vp-c-brand-2: #b778ff;
-    --vp-c-brand-3: #a45af8;
-    --vp-c-bg-soft: #f0f2fc;
-    --vp-button-alt-bg: #f0f2fc;
-    --vp-button-alt-hover-bg: #f2f5f8;
+    --vp-c-brand-1: #22c55e;
+    --vp-c-brand-2: #4ade80;
+    --vp-c-brand-3: #16a34a;
+    --vp-c-text-1: #1e293b;
+    --vp-c-text-2: #475569;
+    --vp-c-text-3: #64748b;
+
+    --vp-c-bg: #ffffff;
+    --vp-c-bg-soft: #f1f5f9;
+    --vp-c-bg-alt: #e2e8f0;
+
+    --vp-button-brand-bg: var(--vp-c-brand-1);
+    --vp-button-brand-hover-bg: var(--vp-c-brand-3);
+    --vp-button-brand-active-bg: var(--vp-c-brand-3);
+
+    --vp-button-alt-bg: var(--vp-c-bg-soft);
+    --vp-button-alt-hover-bg: var(--vp-c-bg-alt);
+
+    --vp-sidebar-bg-color: var(--vp-c-bg-soft);
+
 }
 
 .dark {
-    --vp-c-bg: #020617;
-    --vp-c-bg-soft: #0a0e1f;
-    --vp-c-bg-alt: #01020e;
-    --vp-button-alt-bg: #0a0e1f;
-    --vp-button-alt-hover-bg: #1b2240;
+    --vp-c-text-1: #f1f5f9;
+    --vp-c-text-2: #94a3b8;
+    --vp-c-text-3: #64748b;
+
+    --vp-c-bg: #0F1829;
+    --vp-c-bg-soft: #1e293b;
+    --vp-c-bg-alt: #1b2333;
+
+    --vp-sidebar-bg-color: var(--vp-c-bg-soft);
+
+    --vp-c-border: #334155;
+    --vp-c-divider: #334155;
+    --vp-c-gutter: #1e293b;
+
 }
 
-.VPHomeHero .text {
-    font-size: 32px;
+.tagline {
+    color: var(--vp-c-text-1) !important;
 }
 
-@media (min-width: 640px) {
-    .VPHomeHero .text {
-        font-size: 50px;
-    }
+.VPNavBar.home .title {
+    width: 150px;
+    color: transparent !important;
+    background-image: url('/assets/ic_logo_landscape.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.dark .VPNavBar.home .title {
+    background-image: url('/assets/ic_logo_landscape_dark.svg');
+}
+
+.VPSidebarItem.level-1.is-link {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--vp-c-bg-soft);
+    padding: 16px 0;
+    border-top: 1px solid var(--vp-c-divider);
+}
+
+.VPSidebarItem.level-1.is-link a {
+    width: 100%;
+    height: 100%;
+    background-image: url('/assets/ic_logo_landscape.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.dark .VPSidebarItem.level-1.is-link a {
+    background-image: url('/assets/ic_logo_landscape_dark.svg');
+}
+
+.VPSidebarItem.level-1.is-link a:after {
+    display: none;
+}
+
+.VPSidebarItem.level-1.is-link p {
+    margin-left: -10000px;
 }

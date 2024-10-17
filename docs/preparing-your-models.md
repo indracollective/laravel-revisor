@@ -62,10 +62,10 @@ Revisor's `createTableSchemas` method will add the following extra columns to yo
 | version\_number | unsignedInteger | Sequential version number                          |
 | record\_id      | foreignKey      | id of draft/published record (versions table only) |
 
-### Amending Existing Revisor Tables
+### Altering Existing Revisor Tables
 
-Modifying existing Revisor table schemas can be done in much the same way as creating new ones. This time we'll
-the `amendTableSchemas` method on the `Revisor` Facade:
+Modifying existing Revisor table schemas can be done in much the same way as creating new ones. This time we'll call
+the `alterTableSchemas` method on the `Revisor` Facade:
 
 ```php
 use Illuminate\Database\Migrations\Migration;
@@ -77,7 +77,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Revisor::amendTableSchemas('pages', function (Blueprint $table) {
+        Revisor::alterTableSchemas('pages', function (Blueprint $table) {
             $table->string('heading')->change();
             $table->text('content')->nullable();
         });  
@@ -91,8 +91,6 @@ Run you migrations as usual with:
 php artisan migrate
 ```
 
-Review the generated database schema in your favourite DB tool to familiarise yourself with the Revisor database schema.
-
 ### Retrofitting Existing Models/Tables
 
 If you are needing to add Revisor to Models in your application that already have production data stored, we recommend
@@ -103,11 +101,6 @@ importing the data from the old single table into the new `Draft` and `Published
 ## 2. Prepare Models
 
 Adding Revisor to your Models is as simple as implementing the `HasRevisor` Interface and Trait.
-
-::: tip Note
-You can define a `$baseTable` property in place of the usual `$table` property, for
-cases where your desired table name is not what Laravel would otherwise assume based on your Model class name.
-:::
 
 This should leave your Model looking something like this:
 
@@ -123,5 +116,9 @@ class Page extends Model implements HasRevisorContract
     protected string $baseTable = 'pages';
 
     ...
-
 ```
+
+::: tip Note
+You can define a `$baseTable` property in place of the usual `$table` property, for
+cases where your desired table name is not what Laravel would otherwise assume based on your Model class name.
+:::
