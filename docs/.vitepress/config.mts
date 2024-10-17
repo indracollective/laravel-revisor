@@ -4,6 +4,15 @@ import {defineConfig} from "vitepress";
 export default defineConfig({
     title: "Laravel Revisor",
     description: "Revisor is a robust versioning and publishing system for Laravel Eloquent Models.",
+    head: [
+        ['link', { rel: 'icon', type: 'image/svg+xml', href: 'https://indracollective.dev/favicon/favicon.svg' }],
+        ['link', { rel: 'icon', type: 'image/png', href: 'https://indracollective.dev/favicon/favicon-48x48.png', sizes: '48x48' }],
+        ['link', { rel: 'shortcut icon', href: 'https://indracollective.dev/favicon/favicon.ico' }],
+        ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: 'https://indracollective.dev/favicon/apple-touch-icon.png' }],
+        ['meta', { name: 'apple-mobile-web-app-title', content: 'Indra' }],
+        ['link', { rel: 'manifest', href: 'https://indracollective.dev/favicon/site.webmanifest' }],
+    ],
+
     cleanUrls: true,
     themeConfig: {
         siteTitle: 'Laravel Revisor',
