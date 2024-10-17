@@ -8,7 +8,9 @@ There are a good handful of Laravel versioning packages out there with varying a
 
 ### 1. Draft, Published and Versioned record data should be clearly distinguished and cleanly instantiable as Eloquent Models.
 
-Revisor provides everything you need to seamlessly manage your Draft, Published and Version records in separate, complete tables for each Model. For example - a `Page` model would have 3 tables; `pages_published`, `pages_drafts` and `pages_versions`. 
+Revisor provides everything you need to seamlessly manage your Draft, Published and Version records in separate, complete tables for each Model. 
+
+For example, a `Page` model would have 3 tables: `pages_published`, `pages_drafts` and `pages_versions` 
 
 This allows for a clear separation of concerns and reduces exposure to the complexity inherent in managing multiple versions of records.
 

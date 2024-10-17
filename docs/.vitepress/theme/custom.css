@@ -28,9 +28,9 @@
 
     --vp-c-bg: #0F1829;
     --vp-c-bg-soft: #1e293b;
-    --vp-c-bg-alt: #1b2333;
+    --vp-c-bg-alt: #0d1525;
 
-    --vp-sidebar-bg-color: var(--vp-c-bg-soft);
+    --vp-sidebar-bg-color: var(--vp-c-bg-alt);
 
     --vp-c-border: #334155;
     --vp-c-divider: #334155;
@@ -60,7 +60,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: var(--vp-c-bg-soft);
+    background-color: var(--vp-c-bg-alt);
     padding: 16px 0;
     border-top: 1px solid var(--vp-c-divider);
 }
