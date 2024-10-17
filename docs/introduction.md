@@ -2,7 +2,7 @@
 
 Laravel Revisor provides robust draft, publishing and versioning for Laravel Eloquent Models.
 
-There are a good handful of Laravel versioning packages out there with varying approaches. Revisor aims to overcome their different trade-offs, offering maximum power, flexibility and interoperability with minimum exposure to complexity.
+There are a good handful of Laravel versioning packages out there with varying approaches. Revisor aims to overcome their different trade-offs, offering maximum power, flexibility and interoperability while maintaining a low tolerance for complexity.
 
 ## Design Goals
 

@@ -1,15 +1,20 @@
-# Introduction
+# Laravel Revisor
 
-Laravel Revisor aims to provide the maximum power and flexibility possible in versioned record management, while maintaining a very low tolerance for complexity.&#x20;
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/indracollective/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indracollective/laravel-revisor)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/indracollective/laravel-revisor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/indracollective/laravel-revisor/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/indracollective/laravel-revisor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/indracollective/laravel-revisor/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/indracollective/laravel-revisor.svg?style=flat-square)](https://packagist.org/packages/indracollective/laravel-revisor)
 
-### Features
+**Laravel Revisor provides robust draft, publishing and versioning for Laravel Eloquent Models.**
 
-✅ Separate, complete database tables for draft, published and version history records of each Model. Drafts and versions of recods are not second class citizens stored in single column json blobs
+There are a good handful of Laravel versioning packages out there with varying approaches. Revisor aims to overcome their different trade-offs, offering maximum power, flexibility and interoperability while maintaining a low tolerance for complexity.
 
-✅ Migration API for managing draft, published and version history tables with no additional overhead
+## Installation
 
-✅ Easy context management for setting the appropriate reading/writing "mode" at all levels of operation - global config, middleware, mode isolation callbacks and query builder modifiers.
+```bash
+composer require indracollective/laravel-revisor
+```
 
-✅ Simple and intuitive API for drafting, publishing and versioning records
+## Documentation
 
-✅ High configurability and excellent documentation
+[laravel-revisor.indracollective.dev](https://laravel-revisor.indracollective.dev)
