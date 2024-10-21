@@ -34,27 +34,31 @@ unintentionally exposing draft records.
 
 ```php
 // this will query the pages_drafts table
-$page = Page::first(); 
+$page = Page::first();
 ```
 
 ### 2. Global Config Override, via Laravel Context
 
-Revisor makes use of Laravel's [Context Management](https://laravel.com/docs/context) capabilities to allow you to
-override the above Global Default `RevisorContext` whenever required, as well as offering visibility of the active
+Revisor makes use of Laravel's [Context Management](https://laravel.com/docs/context) capabilities allowing you to
+override the above Global Default `RevisorContext` as required, with visibility of the active
 `RevisorContext` in logs and error pages.
 
-Setting / getting the active `RevisorContext` is best done through the `setContext` and
-`getContext` methods on the `Revisor` Facade.
+Setting the active `RevisorContext` is best done through the `draftContext`, `publishedContext` and
+`versionContext` methods on the `Revisor` Facade.
 
 ```php
 use Indra\Revisor\Facades\Revisor;
 
-Revisor::setContext(RevisorContext::Published);
+Revisor::publishedContext();
 
 // this will query the pages_published table
 
 $page = Page::first();
 ```
+
+::: info NOTE
+Get the active global context with `Revisor::getContext()`, which falls back to the default context if not overridden.
+:::
 
 ### 3. Local Override via Closures
 
@@ -67,19 +71,19 @@ use Indra\Revisor\Facades\Revisor;
 
 Revisor::withPublishedContext(function () {
     // this will query the pages_published table
-    $page = Page::first(); 
+    $page = Page::first();
 });
 ```
 
 ::: tip
 Under the hood, this temporarily sets the `RevisorContext` in Laravel's Context Store, returning it to the previous
-`RevisorContext` after the closure has been executed.   
+`RevisorContext` after the closure has been executed.
 :::
 
 ### 4. Local Override on the Model / Query Builder via Query Scopes
 
 Setting the `RevisorContext` on an Eloquent Model or Builder will override all other activated `RevisorContext` for that Model or
-Builder instance only. 
+Builder instance only.
 
 This can be achieved by using the Local Query Scope methods `withDraftContext`,
 `withPublishedContext` or `withVersionContext` on your Model or Query Builder.
@@ -87,7 +91,7 @@ This can be achieved by using the Local Query Scope methods `withDraftContext`,
 ```php
 Revisor::withPublishedContext(function() {
     Page::withDraftContext()->create([...]);
-    $page = Page::withDraftContext()->first(); 
+    $page = Page::withDraftContext()->first();
 });
 ```
 
@@ -117,7 +121,4 @@ record.
 ### PublishedMiddleware
 
 Similar to `DraftMiddleware` but for Published Records. Useful if your config sets the default mode to
-`RevisorContext::Draft`  
-
-
-
+`RevisorContext::Draft`
