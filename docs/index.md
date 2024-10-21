@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "Laravel Revisor"
-  tagline: "Robust Draft, Publishing and Versioning\nfor Laravel Eloquent Models."
+  tagline: "Robust Draft, Publishing & Versioning\nfor Laravel Eloquent Models."
   actions:
     - theme: brand
       text: Docs
