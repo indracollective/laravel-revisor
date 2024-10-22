@@ -164,6 +164,36 @@ class Revisor
     }
 
     /**
+     * Set the current RevisorContext to Draft
+     */
+    public function draftContext(): static
+    {
+        $this->setContext(RevisorContext::Draft);
+
+        return $this;
+    }
+
+    /**
+     * Set the current RevisorContext to Published
+     */
+    public function publishedContext(): static
+    {
+        $this->setContext(RevisorContext::Published);
+
+        return $this;
+    }
+
+    /**
+     * Set the current RevisorContext to Version
+     */
+    public function versionContext(): static
+    {
+        $this->setContext(RevisorContext::Version);
+
+        return $this;
+    }
+
+    /**
      * Execute the given callback with the given RevisorContext
      * Useful for switching context temporarily
      */
