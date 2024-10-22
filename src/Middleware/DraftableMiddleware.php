@@ -6,7 +6,6 @@ namespace Indra\Revisor\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Facades\Revisor;
 
 class DraftableMiddleware
