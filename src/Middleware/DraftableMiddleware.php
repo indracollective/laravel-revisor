@@ -14,7 +14,7 @@ class DraftableMiddleware
     public function handle(Request $request, Closure $next)
     {
         if ($this->isDraftRequest($request)) {
-            Revisor::setContext(RevisorContext::Draft);
+            Revisor::draftContext();
         }
 
         return $next($request);
@@ -22,8 +22,6 @@ class DraftableMiddleware
 
     private function isDraftRequest(Request $request): bool
     {
-        $referer = $request->headers->get('referer');
-
-        return $request->has('draft') || ($referer && str_contains($referer, '?draft'));
+        return $request->has('draft');
     }
 }

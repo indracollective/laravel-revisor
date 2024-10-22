@@ -51,6 +51,8 @@ interface HasRevisor
 
     public function isRevised(): bool;
 
+    public function isUnpublishedOrRevised(): bool;
+
     public static function publishing(string|Closure $callback): void;
 
     public static function published(string|Closure $callback): void;
