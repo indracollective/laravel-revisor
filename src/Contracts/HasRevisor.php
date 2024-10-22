@@ -47,6 +47,10 @@ interface HasRevisor
 
     public function isPublishedTableRecord(): bool;
 
+    public function isPublished(): bool;
+
+    public function isRevised(): bool;
+
     public static function publishing(string|Closure $callback): void;
 
     public static function published(string|Closure $callback): void;
