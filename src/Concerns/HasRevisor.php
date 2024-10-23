@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Concerns;
 
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
@@ -90,6 +92,25 @@ trait HasRevisor
     public function getDraftTable(): string
     {
         return Revisor::getDraftTableFor($this->getBaseTable());
+    }
+
+    /**
+     * Get the draft record for this model
+     *
+     * @throws Exception
+     */
+    public function draftRecord(): HasOne
+    {
+        if ($this->isDraftTableRecord()) {
+            throw new Exception('The draft record HasOne relationship is only available to Published and Version records');
+        }
+
+        $instance = (new static)->withDraftContext();
+        $localKey = $this->isVersionTableRecord() ? 'record_id' : $this->getKeyName();
+
+        return $this->newHasOne(
+            $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $localKey
+        );
     }
 
     /**

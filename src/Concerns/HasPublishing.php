@@ -193,25 +193,6 @@ trait HasPublishing
     }
 
     /**
-     * Get the draft record for this model
-     *
-     * @throws Exception
-     */
-    public function draftRecord(): HasOne
-    {
-        if ($this->isDraftTableRecord()) {
-            throw new Exception('The draft record HasOne relationship is only available to Published and Version records');
-        }
-
-        $instance = (new static)->withDraftContext();
-        $localKey = $this->isVersionTableRecord() ? 'record_id' : $this->getKeyName();
-
-        return $this->newHasOne(
-            $instance, $this, $instance->getModel()->getTable().'.'.$this->getKeyName(), $localKey
-        );
-    }
-
-    /**
      * Get the publisher relationship for this model
      */
     public function publisher(): MorphTo
