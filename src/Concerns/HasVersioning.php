@@ -151,15 +151,15 @@ trait HasVersioning
     }
 
     /**
-     * Restore the Draft record to the state of this Version record
+     * Revert the Draft record to the state of this Version record
      *
      * @throws Exception if this record is not a Version record
      */
-    public function restoreDraftToThisVersion(): static
+    public function revertDraftToThisVersion(): static
     {
         if (! $this->isVersionTableRecord()) {
             $context = $this->getRevisorContext();
-            throw new \Exception("Can not restore this record, it is a $context record. Only Version records can be restored.");
+            throw new \Exception("Can not revert this record, it is a $context record. Only Version records can be reverted.");
         }
 
         $this->draftRecord->revertToVersion($this);

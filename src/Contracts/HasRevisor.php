@@ -73,7 +73,7 @@ interface HasRevisor
 
     public function revertToVersionNumber(int $versionNumber): HasRevisor;
 
-    public function restoreDraftToThisVersion(): HasRevisor;
+    public function revertDraftToThisVersion(): HasRevisor;
 
     public function setVersionAsCurrent(HasRevisor|int $version): HasRevisor;
 

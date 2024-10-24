@@ -34,7 +34,8 @@ To take more control of when new Version records are created, you can disable au
 ...
 ```
 
-You can override the default behaviour on a per-Model basis by using the `saveNewVersionOnCreated` and `saveNewVersionOnUpdated` methods which accept a boolean value.
+You can override the default behaviour on a per-Model basis by using the `saveNewVersionOnCreated` and
+`saveNewVersionOnUpdated` methods which accept a boolean value.
 
 ```php
 // config.revisor.versioning.save_new_version_on_created = false
@@ -93,9 +94,9 @@ Get Version records without querying the Draft or Published tables.
 Page::withVersionContext()->where('record_id', 1);
 ```
 
-## Restore a Previous Version
+## Revert to a Previous Version
 
-In the below example, we have a Draft record with two Versions. To restore the Draft record to the state of
+In the below example, we have a Draft record with two Versions. To revert the Draft record to the state of
 the first Version, we can use one of the following methods depending on your use case and what data you have loaded:
 
 ```php
@@ -113,7 +114,7 @@ $page->revertToVersionNumber($firstVersion->version_number);
 
 // or 
 
-$firstVersion->restoreDraftToThisVersion();
+$firstVersion->revertDraftToThisVersion();
 ```
 
 ## Pruning Version Records
