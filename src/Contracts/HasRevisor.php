@@ -35,6 +35,8 @@ interface HasRevisor
 
     public function publisher(): MorphTo;
 
+    public function getPublisherNameAttribute(): ?string;
+
     public function publishOnCreated(bool $bool = true): HasRevisor;
 
     public function publishOnUpdated(bool $bool = true): HasRevisor;

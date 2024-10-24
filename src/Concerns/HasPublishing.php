@@ -197,7 +197,23 @@ trait HasPublishing
      */
     public function publisher(): MorphTo
     {
-        return $this->morphTo('publisher');
+        return $this->morphTo(config('revisor.publishing.table_columns.publisher'));
+    }
+
+    /**
+     * Get the name of the publisher for this model
+     */
+    public function getPublisherNameAttribute(): ?string
+    {
+        if (! $this->publisher) {
+            return null;
+        }
+
+        return $this->publisher->name ??
+            $this->publisher->title ??
+            $this->publisher->email ??
+            $this->publisher->username ??
+            class_basename($this->publisher).' '.$this->publisher->getKey();
     }
 
     /**
