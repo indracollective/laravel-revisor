@@ -6,6 +6,10 @@ collection of Filament Action, Table Column, and Page components, seamlessly int
 with [FilamentPHP](https://filamentphp.com), a popular admin panel for Laravel composed of beautiful full-stack
 components.
 
+:::info
+The FilamentPHP plugin currently in development. Check back soon for more information soon.
+:::
+
 ## Screenshots
 
 ...
