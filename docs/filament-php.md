@@ -12,7 +12,20 @@ The FilamentPHP plugin currently in development. Check back soon for more inform
 
 ## Screenshots
 
+Table actions and bulk actions for publishing and unpublishing records and viewing the revision history.
+
+![List Records](./assets/screenshots/list_records.png){.light-only}
+![List Records](./assets/screenshots/list_records_dark.png){.dark-only}
+
 ...
+
+![Edit Records](./assets/screenshots/edit_record.png){.light-only}
+![Edit Records](./assets/screenshots/edit_record_dark.png){.dark-only}
+
+...
+
+![View Versions](./assets/screenshots/view_version_record.png){.light-only}
+![View Versions](./assets/screenshots/view_version_record_dark.png){.dark-only}
 
 ## Installation
 

@@ -84,3 +84,11 @@
 .VPSidebarItem.level-1.is-link p {
     margin-left: -10000px;
 }
+
+html.dark .light-only {
+    display: none !important;
+}
+
+html:not(.dark) .dark-only {
+    display: none !important;
+}
