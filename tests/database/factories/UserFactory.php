@@ -7,6 +7,9 @@ namespace Indra\Revisor\Tests\Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Indra\Revisor\Tests\Models\User;
 
+/**
+ * @extends Factory<User>
+ */
 class UserFactory extends Factory
 {
     protected $model = User::class;
