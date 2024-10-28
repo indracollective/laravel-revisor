@@ -7,20 +7,18 @@ Instantly add robust draft, versioning, and publishing functionality to your Fil
 
 ## Screenshots
 
-![List Records](./assets/screenshots/list_records.png){.light-only}
-![List Records](./assets/screenshots/list_records_dark.png){.dark-only}
+![List Records](../../laravel-revisor-filament/docs/screenshots/list_records.png){.light-only}
+![List Records](../../laravel-revisor-filament/docs/screenshots/list_records_dark.png){.dark-only}
 
 ☝️ Table Actions / Bulk Actions for publishing and unpublishing records, viewing the revision history in Filament Tables.
 
-...
-
-![Edit Records](./assets/screenshots/edit_record.png){.light-only}
-![Edit Records](./assets/screenshots/edit_record_dark.png){.dark-only}
+![Edit Records](../../laravel-revisor-filament/docs/screenshots/edit_record.png){.light-only}
+![Edit Records](../../laravel-revisor-filament/docs/screenshots/edit_record_dark.png){.dark-only}
 
 ☝️ Regular Actions for publishing and unpublishing records, viewing the revision history on Filament Edit pages.
 
-![View Versions](./assets/screenshots/view_version_record.png){.light-only}
-![View Versions](./assets/screenshots/view_version_record_dark.png){.dark-only}
+![View Versions](../../laravel-revisor-filament/docs/screenshots/view_version_record.png){.light-only}
+![View Versions](../../laravel-revisor-filament/docs/screenshots/view_version_record_dark.png){.dark-only}
 
 ☝️ View the version history of a record, and Revert to a previous versions of a record.
 
