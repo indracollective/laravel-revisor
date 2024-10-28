@@ -4,11 +4,22 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Contracts;
 
+use Carbon\Carbon;
 use Closure;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * @property bool $is_published
+ * @property Carbon $published_at
+ * @property Model $publisher
+ * @property string $publisher_name
+ * @property bool $is_current
+ * @property int $version_number
+ * @property int $record_id
+ */
 interface HasRevisor
 {
     public function getTable(): string;
