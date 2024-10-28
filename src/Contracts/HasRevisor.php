@@ -34,7 +34,7 @@ interface HasRevisor
 
     public static function bootHasPublishing(): void;
 
-    public function publish(): HasRevisor|bool;
+    public function publish(): static|bool;
 
     public function unpublish(): static;
 
