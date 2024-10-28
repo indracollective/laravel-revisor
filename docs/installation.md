@@ -22,7 +22,13 @@ Before we dive in, make sure your project meets these requirements:
 First, let's add Revisor to your project using Composer. Open your terminal, navigate to your project directory, and run:
 
 ```bash
-composer require indra/laravel-revisor
+composer require indracollective/laravel-revisor
+```
+
+If you'll be using Revisor in Filament, run this command instead:
+
+```bash
+composer require indracollective/laravel-revisor-filament
 ```
 
 ***

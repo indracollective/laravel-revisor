@@ -5,19 +5,30 @@ export default defineConfig({
     title: "Laravel Revisor",
     description: "Revisor is a robust versioning and publishing system for Laravel Eloquent Models.",
     head: [
-        ['link', { rel: 'icon', type: 'image/svg+xml', href: 'https://indracollective.dev/favicon/favicon.svg' }],
-        ['link', { rel: 'icon', type: 'image/png', href: 'https://indracollective.dev/favicon/favicon-48x48.png', sizes: '48x48' }],
-        ['link', { rel: 'shortcut icon', href: 'https://indracollective.dev/favicon/favicon.ico' }],
-        ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: 'https://indracollective.dev/favicon/apple-touch-icon.png' }],
-        ['meta', { name: 'apple-mobile-web-app-title', content: 'Indra' }],
-        ['link', { rel: 'manifest', href: 'https://indracollective.dev/favicon/site.webmanifest' }],
+        ['link', {rel: 'icon', type: 'image/svg+xml', href: 'https://indracollective.dev/favicon/favicon.svg'}],
+        ['link', {
+            rel: 'icon',
+            type: 'image/png',
+            href: 'https://indracollective.dev/favicon/favicon-48x48.png',
+            sizes: '48x48'
+        }],
+        ['link', {rel: 'shortcut icon', href: 'https://indracollective.dev/favicon/favicon.ico'}],
+        ['link', {
+            rel: 'apple-touch-icon',
+            sizes: '180x180',
+            href: 'https://indracollective.dev/favicon/apple-touch-icon.png'
+        }],
+        ['meta', {name: 'apple-mobile-web-app-title', content: 'Indra'}],
+        ['link', {rel: 'manifest', href: 'https://indracollective.dev/favicon/site.webmanifest'}],
         [
             'script',
-            { type: 'text/javascript' },
+            {type: 'text/javascript'},
             `(function(c, l, a, r, i, t, y) { c[a] = c[a] || function() { (c[a].q = c[a].q || []).push(arguments)}; t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i; y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y); })(window, document, "clarity", "script", "okb6xj5brc");`
         ]
     ],
-
+    markdown: {
+        lazyLoading: true
+    },
     cleanUrls: true,
     themeConfig: {
         siteTitle: 'Laravel Revisor',
