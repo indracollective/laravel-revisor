@@ -2,11 +2,14 @@
 
 namespace Indra\Revisor\Tests\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Indra\Revisor\Tests\Database\Factories\UserFactory;
 
 class User extends Authenticatable
 {
+    use HasFactory;
     use Notifiable;
 
     /**
@@ -40,5 +43,10 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
         ];
+    }
+
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
     }
 }

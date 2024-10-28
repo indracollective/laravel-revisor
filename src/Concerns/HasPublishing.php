@@ -74,7 +74,7 @@ trait HasPublishing
      * Copies the draft record to the published table.
      * Saves the updated draft record.
      */
-    public function publish(): HasRevisorContract|bool
+    public function publish(): static|bool
     {
         if ($this->fireModelEvent('publishing') === false) {
             return false;
@@ -105,7 +105,7 @@ trait HasPublishing
      * Saves the updated draft record.
      * Fires the unpublished event.
      */
-    public function unpublish(): HasRevisorContract
+    public function unpublish(): static
     {
         if ($this->fireModelEvent('unpublishing') === false) {
             return $this;
@@ -134,7 +134,7 @@ trait HasPublishing
      * Updates the published_at timestamp, sets is_published to true,
      * and associates the current authenticated user as the publisher.
      */
-    public function setPublishedAttributes(): HasRevisorContract
+    public function setPublishedAttributes(): static
     {
         $this->published_at = now();
         $this->is_published = true;
@@ -146,7 +146,7 @@ trait HasPublishing
     /**
      * Apply the state of this record to the published record
      */
-    public function applyStateToPublishedRecord(): HasRevisorContract
+    public function applyStateToPublishedRecord(): static
     {
         // find or make the published record
         $published = $this->publishedRecord ?? static::make()->setRevisorContext(RevisorContext::Published);
@@ -164,7 +164,7 @@ trait HasPublishing
      * Set the publishing related attributes on
      * the model to their unpublished state
      */
-    public function setUnpublishedAttributes(): HasRevisorContract
+    public function setUnpublishedAttributes(): static
     {
         $this->published_at = null;
         $this->is_published = false;
@@ -219,7 +219,7 @@ trait HasPublishing
     /**
      * Set whether to publish the record when a new instance of the model is created
      */
-    public function publishOnCreated(bool $bool = true): HasRevisorContract
+    public function publishOnCreated(bool $bool = true): static
     {
         $this->publishOnCreated = $bool;
 
@@ -229,7 +229,7 @@ trait HasPublishing
     /**
      * Set whether to publish the record when an instance of the model is updated
      */
-    public function publishOnUpdated(bool $bool = true): HasRevisorContract
+    public function publishOnUpdated(bool $bool = true): static
     {
         $this->publishOnUpdated = $bool;
 
@@ -239,7 +239,7 @@ trait HasPublishing
     /**
      * Set whether to publish the record when an instance of the model is created or updated
      */
-    public function publishOnSaved(bool $bool = true): HasRevisorContract
+    public function publishOnSaved(bool $bool = true): static
     {
         $this->publishOnCreated = $bool;
         $this->publishOnUpdated = $bool;

@@ -9,12 +9,15 @@ use Illuminate\Support\Str;
 use Indra\Revisor\Enums\RevisorContext;
 use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\RevisorServiceProvider;
+use Indra\Revisor\Tests\Models\User;
 use Orchestra\Testbench\Attributes\WithMigration;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 #[WithMigration]
 class TestCase extends Orchestra
 {
+    public ?User $user;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -22,6 +25,9 @@ class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'Indra\\Revisor\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
+
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
     }
 
     protected function getPackageProviders($app): array
@@ -45,6 +51,8 @@ class TestCase extends Orchestra
         Schema::create('users', function (Blueprint $table): void {
             $table->id();
             $table->string('email')->unique();
+            $table->string('name');
+            $table->string('password');
             $table->timestamps();
         });
 

@@ -36,13 +36,13 @@ interface HasRevisor
 
     public function publish(): HasRevisor|bool;
 
-    public function unpublish(): HasRevisor;
+    public function unpublish(): static;
 
-    public function setPublishedAttributes(): HasRevisor;
+    public function setPublishedAttributes(): static;
 
-    public function applyStateToPublishedRecord(): HasRevisor;
+    public function applyStateToPublishedRecord(): static;
 
-    public function setUnpublishedAttributes(): HasRevisor;
+    public function setUnpublishedAttributes(): static;
 
     public function publishedRecord(): HasOne;
 
@@ -50,9 +50,9 @@ interface HasRevisor
 
     public function getPublisherNameAttribute(): ?string;
 
-    public function publishOnCreated(bool $bool = true): HasRevisor;
+    public function publishOnCreated(bool $bool = true): static;
 
-    public function publishOnUpdated(bool $bool = true): HasRevisor;
+    public function publishOnUpdated(bool $bool = true): static;
 
     public function shouldPublishOnCreated(): bool;
 
@@ -82,13 +82,13 @@ interface HasRevisor
 
     public function saveNewVersion(): HasRevisor|bool;
 
-    public function revertToVersion(HasRevisor|int|string $version): HasRevisor;
+    public function revertToVersion(HasRevisor|int|string $version): static;
 
-    public function revertToVersionNumber(int $versionNumber): HasRevisor;
+    public function revertToVersionNumber(int $versionNumber): static;
 
-    public function revertDraftToThisVersion(): HasRevisor;
+    public function revertDraftToThisVersion(): static;
 
-    public function setVersionAsCurrent(HasRevisor|int $version): HasRevisor;
+    public function setVersionAsCurrent(HasRevisor|int $version): static;
 
     public function versionRecords(): HasMany;
 
@@ -102,15 +102,15 @@ interface HasRevisor
 
     public function syncToCurrentVersionRecord(): HasRevisor|bool;
 
-    public function pruneVersions(): HasRevisor;
+    public function pruneVersions(): static;
 
-    public function saveNewVersionOnCreated(bool $bool = true): HasRevisor;
+    public function saveNewVersionOnCreated(bool $bool = true): static;
 
     public function shouldSaveNewVersionOnCreated(): bool;
 
-    public function saveNewVersionOnUpdated(bool $bool = true): HasRevisor;
+    public function saveNewVersionOnUpdated(bool $bool = true): static;
 
-    public function saveNewVersionOnSaved(bool $bool = true): HasRevisor;
+    public function saveNewVersionOnSaved(bool $bool = true): static;
 
     public function shouldSaveNewVersionOnUpdated(): bool;
 

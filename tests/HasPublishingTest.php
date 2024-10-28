@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\DB;
 use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\Tests\Models\Page;
-use Indra\Revisor\Tests\Models\User;
 
 beforeEach(function () {
     Revisor::getAllTablesFor('pages')->each(fn ($table) => DB::table($table)->truncate());
@@ -60,8 +59,6 @@ it('publishes on updated only when configured to do so', function () {
 });
 
 it('publishes and unpublishes a record when explicitly called', function () {
-    $user = User::create(['email' => 'user@test.com']);
-    $this->actingAs($user);
 
     $page = Page::create(['title' => 'Home']);
 
@@ -71,14 +68,14 @@ it('publishes and unpublishes a record when explicitly called', function () {
 
     expect($page->is_published)->toBeTrue()
         ->and($page->published_at)->not()->toBeNull()
-        ->and($page->publisher->id)->toBe($user->id);
+        ->and($page->publisher->id)->toBe($this->user->id);
 
     $published = Page::withPublishedContext()->find($page->id);
 
     expect($published)->toBeInstanceOf(Page::class)
         ->and($published->is_published)->toBeTrue()
         ->and($published->published_at)->not()->toBeNull()
-        ->and($published->publisher->id)->toBe($user->id);
+        ->and($published->publisher->id)->toBe($this->user->id);
 
     // unpublish a record
 
@@ -92,10 +89,7 @@ it('publishes and unpublishes a record when explicitly called', function () {
     expect($unpublished)->toBeNull();
 });
 
-it('does not sync publishing metadata to when saving a new version', function () {
-    $user = User::create(['email' => 'user@test.com']);
-    $this->actingAs($user);
-
+it('syncs publishing metadata to version record when saving a new version', function () {
     $page = Page::create(['title' => 'Home']);
 
     // publish a record
@@ -107,7 +101,7 @@ it('does not sync publishing metadata to when saving a new version', function ()
 
     expect($version->is_published)->toBeTrue()
         ->and($version->published_at)->not()->toBeNull()
-        ->and($version->publisher->id)->toBe($user->id);
+        ->and($version->publisher->id)->toBe($this->user->id);
 
     $page->saveNewVersion();
 

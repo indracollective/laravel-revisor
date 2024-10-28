@@ -93,7 +93,7 @@ trait HasVersioning
      * Update this record to have the version number of the new version
      * Prune old versions if necessary
      */
-    public function saveNewVersion(): HasRevisorContract|bool
+    public function saveNewVersion(): static|bool
     {
         if ($this->fireModelEvent('savingNewVersion') === false) {
             return false;
@@ -125,7 +125,7 @@ trait HasVersioning
     /**
      * Rollback the Draft table record to the given version
      */
-    public function revertToVersion(HasRevisorContract|int|string $version): HasRevisorContract
+    public function revertToVersion(HasRevisorContract|int|string $version): static
     {
         $version = is_int($version) ? $this->versionRecords()->find($version) : $version;
 
@@ -167,7 +167,7 @@ trait HasVersioning
         return $this;
     }
 
-    public function setVersionAsCurrent(HasRevisorContract|int $version): HasRevisorContract
+    public function setVersionAsCurrent(HasRevisorContract|int $version): static
     {
         $version = is_int($version) ? $this->versionRecords()->find($version) : $version;
 
@@ -243,7 +243,7 @@ trait HasVersioning
      * Sync this record's attributes to the current version record
      * Create a new version record if there is no current version
      */
-    public function syncToCurrentVersionRecord(): HasRevisorContract|bool
+    public function syncToCurrentVersionRecord(): static|bool
     {
         if (! $this->currentVersionRecord) {
             return $this->saveNewVersion();
@@ -269,7 +269,7 @@ trait HasVersioning
         return $this;
     }
 
-    public function pruneVersions(): HasRevisorContract
+    public function pruneVersions(): static
     {
         if (! $this->prunableVersions->count()) {
             return $this;
@@ -295,7 +295,7 @@ trait HasVersioning
         return $query;
     }
 
-    public function saveNewVersionOnCreated(bool $bool = true): HasRevisorContract
+    public function saveNewVersionOnCreated(bool $bool = true): static
     {
         $this->saveNewVersionOnCreated = $bool;
 
@@ -309,7 +309,7 @@ trait HasVersioning
             $this->saveNewVersionOnCreated;
     }
 
-    public function saveNewVersionOnUpdated(bool $bool = true): HasRevisorContract
+    public function saveNewVersionOnUpdated(bool $bool = true): static
     {
         $this->saveNewVersionOnUpdated = $bool;
 
@@ -323,7 +323,7 @@ trait HasVersioning
             $this->saveNewVersionOnUpdated;
     }
 
-    public function saveNewVersionOnSaved(bool $bool = true): HasRevisorContract
+    public function saveNewVersionOnSaved(bool $bool = true): static
     {
         $this->saveNewVersionOnCreated = $bool;
         $this->saveNewVersionOnUpdated = $bool;
