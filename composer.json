@@ -42,15 +42,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Indra\\Revisor\\": "src/"
+            "Indra\\Revisor\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Indra\\Revisor\\Tests\\": "tests/",
-            "Workbench\\App\\": "workbench/app/",
-            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
-            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+            "Indra\\Revisor\\Tests\\": "tests",
+            "Workbench\\App\\": "workbench/app/"
         }
     },
     "scripts": {
