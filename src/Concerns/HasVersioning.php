@@ -125,7 +125,7 @@ trait HasVersioning
     /**
      * Rollback the Draft table record to the given version
      */
-    public function revertToVersion(HasRevisorContract|int $version): HasRevisorContract
+    public function revertToVersion(HasRevisorContract|int|string $version): HasRevisorContract
     {
         $version = is_int($version) ? $this->versionRecords()->find($version) : $version;
 

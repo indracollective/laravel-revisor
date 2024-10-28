@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property bool $is_current
  * @property int $version_number
  * @property int $record_id
+ *
+ * @phpstan-require-extends Model
  */
 interface HasRevisor
 {
@@ -80,7 +82,7 @@ interface HasRevisor
 
     public function saveNewVersion(): HasRevisor|bool;
 
-    public function revertToVersion(HasRevisor|int $version): HasRevisor;
+    public function revertToVersion(HasRevisor|int|string $version): HasRevisor;
 
     public function revertToVersionNumber(int $versionNumber): HasRevisor;
 
