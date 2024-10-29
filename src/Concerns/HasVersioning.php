@@ -135,7 +135,20 @@ trait HasVersioning
         $this->setVersionAsCurrent($version);
 
         // update the current draft record to have the data from the version
-        $attributes = collect($version->getAttributes())->except(['id', 'record_id'])->toArray();
+        // excluding the publishing and versioning columns
+        // and updating the updated_at timestamp
+        $attributes = collect($version->getAttributes())
+            ->except([
+                'id',
+                config('revisor.versioning.table_columns.record_id'),
+                config('revisor.publishing.table_columns.published_at'),
+                config('revisor.publishing.table_columns.is_published'),
+                config('revisor.publishing.table_columns.publisher').'_id',
+                config('revisor.publishing.table_columns.publisher').'_type',
+            ])
+            ->put('updated_at', now())
+            ->toArray();
+
         $this->forceFill($attributes)->saveQuietly();
 
         $this->fireModelEvent('revertedToVersion', $version);
@@ -176,9 +189,11 @@ trait HasVersioning
         $this->versionRecords()->where('is_current', 1)->update(['is_current' => 0]);
         $version->forceFill(['is_current' => 1])->saveQuietly();
 
-        // update the current draft record to have the new version_number
+        // update the draft record to have the new version_number
         if ($this->version_number !== $version->version_number) {
-            $this->forceFill(['version_number' => $version->version_number])->saveQuietly();
+            $this->forceFill([
+                config('revisor.versioning.table_columns.version_number') => $version->{config('revisor.versioning.table_columns.version_number')},
+            ])->saveQuietly();
         }
 
         $this->refresh();

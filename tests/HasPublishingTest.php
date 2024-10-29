@@ -2,13 +2,7 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\DB;
-use Indra\Revisor\Facades\Revisor;
 use Indra\Revisor\Tests\Models\Page;
-
-beforeEach(function () {
-    Revisor::getAllTablesFor('pages')->each(fn ($table) => DB::table($table)->truncate());
-});
 
 it('publishes on created only when configured to do so', function () {
     $page = Page::create(['title' => 'Home']);
