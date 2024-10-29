@@ -26,7 +26,7 @@ class TestCase extends Orchestra
             fn (string $modelName) => 'Indra\\Revisor\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
 
-        $this->user = User::factory()->create();
+        $this->user = User::create(['name' => 'Test User', 'email' => 'test@example.com']);
         $this->actingAs($this->user);
     }
 
@@ -52,7 +52,6 @@ class TestCase extends Orchestra
             $table->id();
             $table->string('email')->unique();
             $table->string('name');
-            $table->string('password');
             $table->timestamps();
         });
 

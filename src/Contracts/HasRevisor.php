@@ -80,7 +80,7 @@ interface HasRevisor
 
     public function initializeHasVersioning(): void;
 
-    public function saveNewVersion(): HasRevisor|bool;
+    public function saveNewVersion(): static|bool;
 
     public function revertToVersion(HasRevisor|int|string $version): static;
 
@@ -100,7 +100,7 @@ interface HasRevisor
 
     public function currentVersionRecord(): HasOne;
 
-    public function syncToCurrentVersionRecord(): HasRevisor|bool;
+    public function syncToCurrentVersionRecord(): static|bool;
 
     public function pruneVersions(): static;
 
