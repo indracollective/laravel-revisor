@@ -21,3 +21,12 @@ features:
   - title:  Flexible Context Management
     details: Easily move between Draft, Published and Version contexts at any level; Global Config, Route Middleware, Query Scopes and more.
 ---
+
+<p style="text-align: center;">
+<br>
+<strong>Integrations</strong>
+<br>
+Add Revisor to your FilamentPHP project with 
+<a href="/filament-php">Revisor Filament</a>
+</p>
+
