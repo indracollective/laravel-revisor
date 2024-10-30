@@ -92,3 +92,17 @@ html.dark .light-only {
 html:not(.dark) .dark-only {
     display: none !important;
 }
+
+.VPSocialLink[href*="bsky"] {
+    svg {
+        width: 20px !important;
+
+        path {
+            fill: var(--vp-c-text-2) !important;
+        }
+
+        &:hover path {
+            fill: var(--vp-c-text-1) !important;
+        }
+    }
+}
