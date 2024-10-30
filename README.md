@@ -13,7 +13,7 @@
 composer require indracollective/laravel-revisor
 ```
 
-Or for FilamentPHP support:
+For FilamentPHP support install [laravel-revisor-filament](https://github.com/indracollective/laravel-revisor-filament)
 
 ```bash
 composer require indracollective/laravel-revisor-filament
