@@ -16,6 +16,11 @@ class Page extends Model implements HasRevisorContract
 
     protected $fillable = [
         'title',
-        'description',
+        'content',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'metadata' => 'array',
     ];
 }

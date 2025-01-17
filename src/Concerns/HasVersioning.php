@@ -104,7 +104,7 @@ trait HasVersioning
             ->add('id')
             ->toArray();
 
-        $attributes = collect($this->attributes)
+        $attributes = collect($this->attributesToArray())
             ->except($exceptAttributes)
             ->merge([
                 'record_id' => $this->id,

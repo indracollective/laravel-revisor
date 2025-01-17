@@ -102,3 +102,15 @@ it('syncs publishing metadata to version record when saving a new version', func
     expect($page->versionRecords()->firstWhere('is_current', 1)->is_published)->toBeFalse()
         ->and($page->versionRecords()->firstWhere('is_current', 0)->is_published)->toBeTrue();
 });
+
+it('does not double encoded json columns', function () {
+    $jsonData = ['key' => 'value', 'nested' => ['foo' => 'bar']];
+
+    $page = Page::create([
+        'title' => 'Test Page',
+        'metadata' => $jsonData,
+    ])->publish();
+
+    // Assert the JSON in the version matches the original
+    expect($page->publishedRecord->metadata)->toBe($jsonData);
+});

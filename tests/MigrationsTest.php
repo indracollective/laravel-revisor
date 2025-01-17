@@ -22,6 +22,7 @@ it('creates and alters revisor schemas', function () {
         'published_at',
         'is_current',
         'is_published',
+        'metadata',
         'content',
         'created_at',
         'updated_at',

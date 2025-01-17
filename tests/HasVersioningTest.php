@@ -129,3 +129,15 @@ it('removes version number from draft and published records when version deleted
         ->and($page->version_number)->toBeNull()
         ->and($page->publishedRecord->version_number)->toBeNull();
 });
+
+it('does not double encode json columns when creating versions', function () {
+    $jsonData = ['key' => 'value', 'nested' => ['foo' => 'bar']];
+
+    $page = Page::create([
+        'title' => 'Test Page',
+        'metadata' => $jsonData,
+    ]);
+
+    // Assert the JSON in the version matches the original
+    expect($page->currentVersionRecord->metadata)->toBe($jsonData);
+});

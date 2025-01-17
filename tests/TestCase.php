@@ -59,6 +59,7 @@ class TestCase extends Orchestra
         Revisor::createTableSchemas('pages', function (Blueprint $table): void {
             $table->id();
             $table->string('title');
+            $table->json('metadata')->nullable();
             $table->timestamps();
         });
 

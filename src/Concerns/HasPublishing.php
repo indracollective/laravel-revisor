@@ -152,7 +152,7 @@ trait HasPublishing
         $published = $this->publishedRecord ?? static::make()->setRevisorContext(RevisorContext::Published);
 
         // copy the attributes from the draft record to the published record
-        $published->forceFill($this->attributes);
+        $published->forceFill($this->attributesToArray());
 
         // save the published record
         $published->save();
