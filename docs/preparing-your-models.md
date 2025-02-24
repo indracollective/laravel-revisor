@@ -33,7 +33,7 @@ return new class extends Migration
         Revisor::createTableSchemas('pages', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-        });  
+        });
     }
 }
 ```
@@ -48,6 +48,10 @@ When the migration runs, `Revisor::createTableSchemas` will use the `baseTable` 
 create all 3 `pages_drafts`,
 `pages_versions` and `pages_published` tables. As with regular Laravel migrations, the closure passed in the second
 argument will be used to build the table schemas according to your needs.
+
+::: tip Using UUID / ULID Primary Keys?
+If your model has `Ulid` or `Uuid` primary keys, you will need to pass a third argument to `createTableSchemas` to specify the model class. This is necessary for Revisor to correctly handle the primary key.
+:::
 
 ### Revisor Table Columns
 
@@ -80,7 +84,7 @@ return new class extends Migration
         Revisor::alterTableSchemas('pages', function (Blueprint $table) {
             $table->string('heading')->change();
             $table->text('content')->nullable();
-        });  
+        });
     }
 }
 ```

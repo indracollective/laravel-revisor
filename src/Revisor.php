@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Indra\Revisor;
 
 use Closure;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Context;
@@ -19,7 +20,7 @@ class Revisor
      * - {baseTableName}_live, which holds the published version of the records
      * - {baseTableName}, which holds the base data / drafts of the records
      */
-    public function createTableSchemas(string $baseTableName, Closure $callback): void
+    public function createTableSchemas(string $baseTableName, Closure $callback, Model|string|null $model = null): void
     {
         // create the draft table
         Schema::create(static::getDraftTableFor($baseTableName), function (Blueprint $table) use ($callback) {
@@ -32,14 +33,20 @@ class Revisor
         });
 
         // create the versions table
-        Schema::create(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback, $baseTableName) {
+        Schema::create(static::getVersionTableFor($baseTableName), function (Blueprint $table) use ($callback, $baseTableName, $model) {
             $callback($table, RevisorContext::Version);
             $table->boolean(config('revisor.publishing.table_columns.is_published'))->default(0)->index();
             $table->timestamp(config('revisor.publishing.table_columns.published_at'))->nullable();
             $table->nullableMorphs(config('revisor.publishing.table_columns.publisher'));
             $table->boolean(config('revisor.versioning.table_columns.is_current'))->default(0)->index();
             $table->unsignedInteger(config('revisor.versioning.table_columns.version_number'))->unsigned()->nullable()->index();
-            $table->foreignId(config('revisor.versioning.table_columns.record_id'))->constrained(static::getDraftTableFor($baseTableName))->cascadeOnDelete();
+
+            if ($model) {
+                // allows for uuid and ulid primary keys
+                $table->foreignIdFor($model, config('revisor.versioning.table_columns.record_id'))->constrained(static::getDraftTableFor($baseTableName))->cascadeOnDelete();
+            } else {
+                $table->foreignId(config('revisor.versioning.table_columns.record_id'))->constrained(static::getDraftTableFor($baseTableName))->cascadeOnDelete();
+            }
         });
 
         // create the published table

@@ -46,7 +46,7 @@ export default defineConfig({
                     {
                         text: "Usage",
                         items: [
-                            {text: "Preparing your Models", link: "/preparing-your-models"},
+                            {text: "Models & Migrations", link: "/preparing-your-models"},
                             {text: "Managing Context", link: "/managing-context"},
                             {text: "Publishing", link: "/publishing"},
                             {text: "Versioning", link: "/versioning"},

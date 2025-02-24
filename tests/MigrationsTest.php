@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Indra\Revisor\Facades\Revisor;
+use Indra\Revisor\Tests\Models\UlidModel;
 
 it('creates and alters revisor schemas', function () {
     // table creation and alterments in TestCase.php
@@ -47,4 +49,22 @@ it('creates and alters revisor schemas', function () {
     $actualColumns = Schema::getColumnListing(Revisor::getPublishedTableFor('pages'));
     sort($actualColumns);
     expect($expectedColumns)->toMatchArray($actualColumns);
+});
+
+it('plays nicely with ulid primary keys', function () {
+    Revisor::createTableSchemas('ulid_models', function (Blueprint $table) {
+        $table->ulid('id')->primary();
+        $table->string('title');
+        $table->timestamps();
+    }, UlidModel::class);
+
+    // Assert tables were created
+    expect(Schema::hasTable('ulid_models_drafts'))->toBeTrue();
+    expect(Schema::hasTable('ulid_models_versions'))->toBeTrue();
+    expect(Schema::hasColumn('ulid_models_versions', 'record_id'))->toBeTrue();
+
+    // Create a draft record with a ULID
+    $ulidModel = UlidModel::create(['title' => 'Test Model']);
+    expect($ulidModel->id)->not->toBeEmpty(); // Should have a ULID
+    expect($ulidModel->currentVersionRecord->record_id)->toBe($ulidModel->id);
 });
