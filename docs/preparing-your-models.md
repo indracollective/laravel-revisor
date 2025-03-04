@@ -49,9 +49,35 @@ create all 3 `pages_drafts`,
 `pages_versions` and `pages_published` tables. As with regular Laravel migrations, the closure passed in the second
 argument will be used to build the table schemas according to your needs.
 
-::: tip Using UUID / ULID Primary Keys?
+### Special Cases
+
+#### Using UUID / ULID Primary Keys
+
 If your model has `Ulid` or `Uuid` primary keys, you will need to pass a third argument to `createTableSchemas` to specify the model class. This is necessary for Revisor to correctly handle the primary key.
-:::
+
+```php
+Revisor::createTableSchemas(
+    'pages',
+    function (Blueprint $table) {...},
+    App\Models\Page::class
+)
+```
+
+#### Models With Unique Column Constraints
+
+If your model has an unique columns like a `slug`, you will need to ensure that the unique constraint is not applied to the versions table. This can be done by accepting the context parameter in your closure, for example:
+
+```php
+Revisor::createTableSchemas('pages', function (Blueprint $table, RevisorContext $context) {
+    $table->id();
+    $table->string('title');
+    if ($context === RevisorContext::Version) {
+        $table->string('slug');
+    } else {
+        $table->string('slug')->unique();
+    }
+});
+```
 
 ### Revisor Table Columns
 
