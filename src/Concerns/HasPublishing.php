@@ -154,6 +154,10 @@ trait HasPublishing
         // copy the attributes from the draft record to the published record
         $published->forceFill($this->attributesToArray());
 
+        // Ensure ID is copied even if it's hidden
+        $idField = $this->primaryKey;
+        $published->{$idField} = $this->{$idField};
+
         // save the published record
         $published->save();
 

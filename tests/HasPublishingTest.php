@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 use Indra\Revisor\Tests\Models\Page;
+use Indra\Revisor\Tests\Models\HiddenIdModel;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Indra\Revisor\Facades\Revisor;
 
 it('publishes on created only when configured to do so', function () {
     $page = Page::create(['title' => 'Home']);
@@ -113,4 +117,23 @@ it('does not double encoded json columns', function () {
 
     // Assert the JSON in the version matches the original
     expect($page->publishedRecord->metadata)->toBe($jsonData);
+});
+
+it('copies the record ID when publishing, even if hidden', function () {
+    Revisor::createTableSchemas('hidden_id_models', function (Blueprint $table) {
+        $table->id();
+        $table->string('slug');
+        $table->timestamps();
+    });
+
+    // Create two drafts and publish them in reverse order
+    $recordA =  HiddenIdModel::create([ 'slug'=>'a' ]);
+    $recordB =  HiddenIdModel::create([ 'slug'=>'b' ]);
+    $recordB->publish();
+
+    expect($recordB->publishedRecord)->not()->toBeNull();
+
+    $recordA->publish();
+
+    expect($recordB->slug)->toEqual($recordB->publishedRecord->slug);
 });
