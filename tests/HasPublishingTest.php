@@ -119,7 +119,7 @@ it('does not double encoded json columns', function () {
     expect($page->publishedRecord->metadata)->toBe($jsonData);
 });
 
-it('copies the record ID when publishing, even if hidden', function () {
+it('copies hidden attributes when publishing', function () {
     Revisor::createTableSchemas('hidden_id_models', function (Blueprint $table) {
         $table->id();
         $table->string('slug');

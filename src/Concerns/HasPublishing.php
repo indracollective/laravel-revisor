@@ -151,12 +151,15 @@ trait HasPublishing
         // find or make the published record
         $published = $this->publishedRecord ?? static::make()->setRevisorContext(RevisorContext::Published);
 
+        // Temporarily unhide hidden attributes so they can be copied
+        $hiddenAttributes = $this->getHidden();
+        $this->setHidden([]);
+
         // copy the attributes from the draft record to the published record
         $published->forceFill($this->attributesToArray());
 
-        // Ensure ID is copied even if it's hidden
-        $idField = $this->primaryKey;
-        $published->{$idField} = $this->{$idField};
+        // Restore hidden attributes
+        $this->setHidden($hiddenAttributes);
 
         // save the published record
         $published->save();
