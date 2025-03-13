@@ -104,6 +104,11 @@ trait HasVersioning
             ->add('id')
             ->toArray();
 
+
+        // Temporarily unhide hidden attributes so they can be copied
+        $hiddenAttributes = $this->getHidden();
+        $this->setHidden([]);
+
         $attributes = collect($this->attributesToArray())
             ->except($exceptAttributes)
             ->merge([
@@ -111,6 +116,9 @@ trait HasVersioning
                 'version_number' => ($this->versionRecords()->max('version_number') ?? 0) + 1,
             ])
             ->toArray();
+
+        // Restore hidden attributes
+        $this->setHidden($hiddenAttributes);
 
         $version = static::make()->setRevisorContext(RevisorContext::Version)->forceFill($attributes);
         $this->setVersionAsCurrent($version);
