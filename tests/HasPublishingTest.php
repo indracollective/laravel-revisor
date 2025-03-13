@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use Indra\Revisor\Tests\Models\Page;
-use Indra\Revisor\Tests\Models\HiddenIdModel;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Indra\Revisor\Facades\Revisor;
+use Indra\Revisor\Tests\Models\HiddenIdModel;
+use Indra\Revisor\Tests\Models\Page;
 
 it('publishes on created only when configured to do so', function () {
     $page = Page::create(['title' => 'Home']);
@@ -127,8 +126,8 @@ it('copies hidden attributes when publishing', function () {
     });
 
     // Create two drafts and publish them in reverse order
-    $recordA =  HiddenIdModel::create([ 'slug'=>'a' ]);
-    $recordB =  HiddenIdModel::create([ 'slug'=>'b' ]);
+    $recordA = HiddenIdModel::create(['slug' => 'a']);
+    $recordB = HiddenIdModel::create(['slug' => 'b']);
     $recordB->publish();
 
     expect($recordB->publishedRecord)->not()->toBeNull();

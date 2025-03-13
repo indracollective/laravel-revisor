@@ -104,7 +104,6 @@ trait HasVersioning
             ->add('id')
             ->toArray();
 
-
         // Temporarily unhide hidden attributes so they can be copied
         $hiddenAttributes = $this->getHidden();
         $this->setHidden([]);

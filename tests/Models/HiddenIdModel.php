@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Indra\Revisor\Tests\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Indra\Revisor\Concerns\HasRevisor;
 use Indra\Revisor\Contracts\HasRevisor as HasRevisorContract;
@@ -20,7 +19,7 @@ class HiddenIdModel extends Model implements HasRevisorContract
     ];
 
     protected $hidden = [
-        'id'
+        'id',
     ];
 
     public function getRouteKeyName(): string
