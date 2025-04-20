@@ -29,14 +29,14 @@ beforeEach(function () {
 });
 
 it('doesnt include drafts by default', function () {
-get('/default')->assertJsonCount(1);
-    });
+    get('/default')->assertJsonCount(1);
+});
 
 it('can use with draft middleware to include drafts on a route', function () {
-get('/with-drafts-middleware')->assertJsonCount(2);
-    });
+    get('/with-drafts-middleware')->assertJsonCount(2);
+});
 
 it('can use with draft middleware to include drafts on a model binding', function () {
-get('/with-drafts-middleware/'.test()->page1->id)
-->assertJsonFragment(['title' => 'Page 1']);
-    });
+    get('/with-drafts-middleware/'.test()->page1->id)
+        ->assertJsonFragment(['title' => 'Page 1']);
+});
