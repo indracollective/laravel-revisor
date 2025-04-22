@@ -140,9 +140,10 @@ class Revisor
     public function getAllTablesFor(string $baseTableName): Collection
     {
         return collect([
+            // Version table should be returned first so it gets dropped first in dropTableSchemasIfExists
+            $this->getVersionTableFor($baseTableName),
             $this->getDraftTableFor($baseTableName),
             $this->getPublishedTableFor($baseTableName),
-            $this->getVersionTableFor($baseTableName),
         ]);
     }
 
