@@ -297,7 +297,7 @@ trait HasVersioning
             return $this;
         }
 
-        if (method_exists($this->prunableVersions->first(), 'softDeleted')) {
+        if (method_exists($this, 'forceDeleteQuietly')) {
             $this->prunableVersions->each->forceDelete();
         } else {
             $this->prunableVersions->each->delete();

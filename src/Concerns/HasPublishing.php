@@ -115,7 +115,11 @@ trait HasPublishing
         $this->setUnpublishedAttributes();
 
         // delete the published record
-        $this->publishedRecord?->deleteQuietly();
+        if (method_exists($this, 'forceDeleteQuietly')) {
+            $this->publishedRecord?->forceDeleteQuietly();
+        } else {
+            $this->publishedRecord?->deleteQuietly();
+        }
 
         // save the draft record
         $this->saveQuietly();

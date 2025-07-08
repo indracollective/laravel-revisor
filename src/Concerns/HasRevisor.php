@@ -197,4 +197,20 @@ trait HasRevisor
 
         $this->currentVersionRecord?->unpublish();
     }
+
+    /**
+     * Get the Revisor statuses for the model
+     */
+    public function getRevisorStatuses(): array
+    {
+        if (! $this->isPublished()) {
+            return ['draft'];
+        }
+
+        if (! $this->isRevised()) {
+            return ['published'];
+        }
+
+        return ['published', 'revised'];
+    }
 }
