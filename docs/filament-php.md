@@ -2,6 +2,8 @@
 
 Instantly add robust draft, versioning, and publishing functionality to your FilamentPHP admin panel with the [Revisor Filament plugin](https://github.com/indracollective/laravel-revisor-filament). This plugin offers a collection of Filament Actions, Table Columns, and Page components to seamlessly integrate Revisor with [FilamentPHP](https://filamentphp.com), a popular admin panel for Laravel composed of beautiful full-stack components.
 
+> **Note:** This documentation is for Filament v4. For Filament v3, see the [archived v3 documentation](filament-php-v3.md).
+
 ## Screenshots
 
 ![List Records](/assets/screenshots/list_records.png){.light-only}
@@ -56,10 +58,10 @@ Add the
 
 ```php
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\ActionGroup;
-use Indra\RevisorFilament\Filament\PublishTableAction;
-use Indra\RevisorFilament\Filament\UnpublishTableAction;
-use Indra\RevisorFilament\Filament\ListVersionsTableAction;
+use Filament\Actions\ActionGroup;
+use Indra\RevisorFilament\Filament\PublishAction;
+use Indra\RevisorFilament\Filament\UnpublishAction;
+use Indra\RevisorFilament\Filament\ListVersionsAction;
 
 class PageResource extends Resource
 {
@@ -68,11 +70,11 @@ class PageResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    PublishTableAction::make(),
-                    UnpublishTableAction::make(),
-                    ListVersionsTableAction::make(),
+                    PublishAction::make(),
+                    UnpublishAction::make(),
+                    ListVersionsAction::make(),
                 ])
             ])
             ...
@@ -80,21 +82,21 @@ class PageResource extends Resource
 ```
 
 ☝️ Add the
-`PublishTableAction` to your Resource's Table definition to display a Publish Action for each record. This action will only display on records that are
+`PublishAction` to your Resource's Table definition to display a Publish Action for each record. This action will only display on records that are
 **not published**.
 
 Add the
-`UnpublishTableAction` to your Resource's Table definition to display an Unpublish Action for each record. This action will only display on records that
+`UnpublishAction` to your Resource's Table definition to display an Unpublish Action for each record. This action will only display on records that
 **are published**.
 
 Add the
-`ListVersionsTableAction` to your Resource's Table definition to allow users to view the version history of a record. Note this this action requires that your Resource has a versions page, see [List Version Records](#list-version-records).
+`ListVersionsAction` to your Resource's Table definition to allow users to view the version history of a record. Note this this action requires that your Resource has a versions page, see [List Version Records](#list-version-records).
 
 ### Table Bulk Actions
 
 ```php
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Actions\BulkActionGroup;
 use Indra\RevisorFilament\Filament\PublishBulkAction;
 use Indra\RevisorFilament\Filament\UnpublishBulkAction;
 
@@ -105,7 +107,7 @@ class PageResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     PublishBulkAction::make(),
                     UnpublishBulkAction::make(),
@@ -116,47 +118,87 @@ class PageResource extends Resource
 ```
 
 ☝️ Add the
-`PublishBulkAction` and UnpublishBulkAction` to your Resource's Table definition to display Publish/Unpublish Actions for all selected records.
+`PublishBulkAction` and `UnpublishBulkAction` to your Resource's Table definition to display Publish/Unpublish Actions for all selected records.
 
 ### List Version Records
 
 ```php
-
 use App\Filament\Resources\PageResource;
-use Indra\RevisorFilament\Filament\ListVersions;
+use App\Models\Model;
+use Filament\Actions\ViewAction;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
-class ListPageVersions extends ListVersions
+class VersionRecordsRelationManager extends RelationManager
 {
-    protected static string $resource = PageResource::class;
-}
+    protected static string $relationship = 'versionRecords';
 
+    protected static ?string $relatedResource = PageResource::class;
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->heading('Versions')
+            ->columns([
+                TextColumn::make('name'),
+                TextColumn::make('version_number')
+                    ->label('Version #'),
+                IconColumn::make('is_current')
+                    ->label('Current')
+                    ->boolean(),
+                IconColumn::make('is_published')
+                    ->label('Published')
+                    ->boolean(),
+            ])
+            ->bulkActions([])
+            ->filters([])
+            ->recordActions([
+                ViewAction::make('view_version')
+                    ->url(fn (Model $record): string => PageResource::getUrl('version', [
+                        'record' => $record->record_id,
+                        'version' => $record->id,
+                    ])),
+            ])
+            ->recordUrl(fn (Model $record): string => PageResource::getUrl('version', [
+                'record' => $record->record_id,
+                'version' => $record->id,
+            ]));
+    }
+}
 ```
 
-☝️ To display the version history of a record, first create a new Filament Resource Page that extends the
-`ListVersions` Page Class. The ListVersions Class defines a simple table with versioning columns and actions for viewing and reverting to a previous version of a record.
+☝️ To display the version history of a record, create a new Filament RelationManager that extends `RelationManager`. This provides a table showing all versions of a record with actions for viewing specific versions.
 
 ```php
-
 use Filament\Resources\Resource;
-use App\Filament\Resources\PageResource\Pages\ListPageVersions;
+use App\Filament\Resources\PageResource\RelationManagers\VersionRecordsRelationManager;
 
 class PageResource extends Resource
 {
     ...
+    
+    public static function getRelations(): array
+    {
+        return [
+            VersionRecordsRelationManager::class,
+        ];
+    }
+    
     public static function getPages(): array
     {
         return [
-            'versions' => ListPageVersions::route('/{record?}/versions'),
+            'version' => ViewPageVersion::route('/{record}/version/{version}'),
         ];
     }
 ```
 
-☝️ Next, be sure to register your ListVersions Page in your Resource's `getPages()` method.
+☝️ Register your VersionRecordsRelationManager in your Resource's `getRelations()` method and add the version view page to `getPages()`.
 
 ### View Version Records
 
 ```php
-
 use App\Filament\Resources\PageResource;
 use Indra\RevisorFilament\Filament\ViewVersion;
 
@@ -164,14 +206,12 @@ class ViewPageVersion extends ViewVersion
 {
     protected static string $resource = PageResource::class;
 }
-
 ```
 
-☝️ To display a full view of a particular version of a record, first create a new Filament Resource Page that extends the
-`ViewVersion` Page Class. The ViewVersion Class displays the selected version of your record using your Resource's form of infolist, and provides an action for reverting the record to this version.
+☝️ To display a full view of a particular version of a record, create a new Filament Resource Page that extends the
+`ViewVersion` Page Class. The ViewVersion Class displays the selected version of your record using your Resource's form or infolist, and provides an action for reverting the record to this version.
 
 ```php
-
 use Filament\Resources\Resource;
 use App\Filament\Resources\PageResource\Pages\ViewPageVersion;
 
@@ -181,10 +221,10 @@ class PageResource extends Resource
     public static function getPages(): array
     {
         return [
-            'view_version' => ViewPageVersion::route('/{record}/versions/{version}'),
+            'version' => ViewPageVersion::route('/{record}/version/{version}'),
         ];
     }
 ```
 
-☝️ Next, be sure to register your ViewPageVersion Page in your Resource's `getPages()` method.
+☝️ Register your ViewPageVersion Page in your Resource's `getPages()` method. Note the updated route pattern for Filament v4.
 

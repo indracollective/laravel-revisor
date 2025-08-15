@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @see \Indra\Revisor\Revisor
  *
- * @method static void createTableSchemas(string $baseTableName, \Closure $callback)
+ * @method static void createTableSchemas(string $baseTableName, \Closure $callback, \Model|string|null $model = null)
  * @method static void alterTableSchemas(string $baseTableName, \Closure $callback)
  * @method static void dropTableSchemasIfExists(string $baseTableName)
  * @method static string getVersionTableFor(string $baseTableName)

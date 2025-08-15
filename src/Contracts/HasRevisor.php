@@ -82,13 +82,13 @@ interface HasRevisor
 
     public function saveNewVersion(): static|bool;
 
-    public function revertToVersion(HasRevisor|int|string $version): static;
+    public function revertToVersion(self|int|string $version): static;
 
     public function revertToVersionNumber(int $versionNumber): static;
 
     public function revertDraftToThisVersion(): static;
 
-    public function setVersionAsCurrent(HasRevisor|int $version): static;
+    public function setVersionAsCurrent(self|int|string $version): static;
 
     public function versionRecords(): HasMany;
 

@@ -134,7 +134,7 @@ trait HasVersioning
      */
     public function revertToVersion(HasRevisorContract|int|string $version): static
     {
-        $version = is_int($version) ? $this->versionRecords()->find($version) : $version;
+        $version = ! is_object($version) ? $this->versionRecords()->find($version) : $version;
 
         $this->fireModelEvent('revertingToVersion', $version);
 
@@ -144,7 +144,7 @@ trait HasVersioning
         // update the current draft record to have the data from the version
         // excluding the publishing and versioning columns
         // and updating the updated_at timestamp
-        $attributes = collect($version->getAttributes())
+        $attributes = collect($version->attributesToArray())
             ->except([
                 'id',
                 config('revisor.versioning.table_columns.record_id'),
@@ -179,7 +179,7 @@ trait HasVersioning
     {
         if (! $this->isVersionTableRecord()) {
             $context = $this->getRevisorContext();
-            throw new \Exception("Can not revert this record, it is a $context record. Only Version records can be reverted.");
+            throw new Exception("Can not revert this record, it is a $context record. Only Version records can be reverted.");
         }
 
         $this->draftRecord->revertToVersion($this);
@@ -187,9 +187,9 @@ trait HasVersioning
         return $this;
     }
 
-    public function setVersionAsCurrent(HasRevisorContract|int $version): static
+    public function setVersionAsCurrent(HasRevisorContract|int|string $version): static
     {
-        $version = is_int($version) ? $this->versionRecords()->find($version) : $version;
+        $version = ! is_object($version) ? $this->versionRecords()->find($version) : $version;
 
         // update all other versions to not be current
         // and set this version as current and save it
@@ -272,7 +272,7 @@ trait HasVersioning
         }
         $this->fireModelEvent('syncingToCurrentVersion', $this->currentVersionRecord);
 
-        $attributes = collect($this->attributes)
+        $attributes = collect($this->attributesToArray())
             ->except([$this->getKeyName(), 'version_number'])
             ->toArray();
 
